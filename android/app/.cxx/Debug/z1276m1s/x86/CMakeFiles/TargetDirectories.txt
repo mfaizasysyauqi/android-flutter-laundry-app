@@ -1,0 +1,2 @@
+D:/Kuliah/Semester 6/aplikasi berbasis platform/tubes1/flutter_laundry_app/android/app/.cxx/Debug/z1276m1s/x86/CMakeFiles/edit_cache.dir
+D:/Kuliah/Semester 6/aplikasi berbasis platform/tubes1/flutter_laundry_app/android/app/.cxx/Debug/z1276m1s/x86/CMakeFiles/rebuild_cache.dir

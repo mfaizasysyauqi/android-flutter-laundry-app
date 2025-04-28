@@ -1,0 +1,2 @@
+D:/Kuliah/Semester 6/aplikasi berbasis platform/review kode kelompok/Final Android/Flutter_Laundry_App-main/Flutter_Laundry_App-main/android/app/.cxx/Debug/2v4z1v91/x86_64/CMakeFiles/edit_cache.dir
+D:/Kuliah/Semester 6/aplikasi berbasis platform/review kode kelompok/Final Android/Flutter_Laundry_App-main/Flutter_Laundry_App-main/android/app/.cxx/Debug/2v4z1v91/x86_64/CMakeFiles/rebuild_cache.dir

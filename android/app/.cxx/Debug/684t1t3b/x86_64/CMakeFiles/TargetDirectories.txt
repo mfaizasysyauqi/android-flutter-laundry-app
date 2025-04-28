@@ -1,0 +1,2 @@
+C:/Users/wi2nu/Flutter_Laundry_App/android/app/.cxx/Debug/684t1t3b/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/wi2nu/Flutter_Laundry_App/android/app/.cxx/Debug/684t1t3b/x86_64/CMakeFiles/rebuild_cache.dir
