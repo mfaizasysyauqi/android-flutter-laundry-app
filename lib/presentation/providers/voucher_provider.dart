@@ -8,9 +8,9 @@ import 'package:flutter_laundry_app/domain/repositories/voucher_repository.dart'
 import 'package:flutter_laundry_app/domain/usecases/user/get_user_by_id_usecase.dart';
 import 'package:flutter_laundry_app/domain/usecases/voucher/create_voucher_usecase.dart';
 import 'package:flutter_laundry_app/domain/usecases/voucher/delete_voucher_usecase.dart';
-import 'package:flutter_laundry_app/domain/usecases/voucher/get_voucher_by_owner_and_laundry_ids.dart';
-import 'package:flutter_laundry_app/domain/usecases/voucher/get_voucher_by_user_id_or_laundry_id_usecase.dart';
-import 'package:flutter_laundry_app/domain/usecases/voucher/get_voucher_by_user_id_usecase.dart';
+import 'package:flutter_laundry_app/domain/usecases/voucher/get_vouchers_by_owner_and_laundry_ids.dart';
+import 'package:flutter_laundry_app/domain/usecases/voucher/get_vouchers_by_user_id_or_laundry_id_usecase.dart';
+import 'package:flutter_laundry_app/domain/usecases/voucher/get_vouchers_by_user_id_usecase.dart';
 import 'package:flutter_laundry_app/domain/usecases/voucher/get_vouchers_by_laundry_id_usecase.dart';
 import 'package:flutter_laundry_app/domain/usecases/voucher/update_voucher_owner_usecase.dart';
 import 'package:flutter_laundry_app/domain/usecases/voucher/update_voucher_usecase.dart';

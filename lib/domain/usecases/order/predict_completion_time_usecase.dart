@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_ml_model_downloader/firebase_ml_model_downloader.dart';
 import 'package:flutter_laundry_app/core/error/failures.dart';
+import 'package:flutter_laundry_app/core/utils/date_estimator.dart';
 import 'package:flutter_laundry_app/data/models/order_model.dart';
 import 'package:flutter_laundry_app/domain/repositories/order_repository.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
 
 class PredictCompletionTimeUseCase {
   final OrderRepository repository;
@@ -14,16 +13,8 @@ class PredictCompletionTimeUseCase {
   static List<dynamic>? _cachedActiveOrders;
   static final _lock = Completer<void>.sync();
 
-  // Scaler disesuaikan dengan rentang data Python
   static const List<double> scalerMin = [5.0, 0.0, 0.0, 0.0, 5.0, 0.0];
-  static const List<double> scalerMax = [
-    100.0,
-    1.0,
-    15.0,
-    6.0,
-    100.0,
-    144.0
-  ]; // Max avgCompletionHours = 144
+  static const List<double> scalerMax = [100.0, 1.0, 15.0, 6.0, 100.0, 144.0];
 
   PredictCompletionTimeUseCase(this.repository);
 
@@ -50,21 +41,6 @@ class PredictCompletionTimeUseCase {
 
     final averageHours = count > 0 ? totalHours / count : 0.0;
     return averageHours;
-  }
-
-  List<List<double>> _normalizeInput(List<List<double>> input) {
-    List<List<double>> normalizedInput = [];
-    for (var row in input) {
-      List<double> normalizedRow = [];
-      for (int i = 0; i < row.length; i++) {
-        double normalizedValue =
-            (row[i] - scalerMin[i]) / (scalerMax[i] - scalerMin[i]);
-        normalizedValue = normalizedValue.clamp(0.0, 1.0);
-        normalizedRow.add(normalizedValue);
-      }
-      normalizedInput.add(normalizedRow);
-    }
-    return normalizedInput;
   }
 
   Future<List<dynamic>> _getActiveOrdersWithCache() async {
@@ -101,57 +77,27 @@ class PredictCompletionTimeUseCase {
 
     try {
       final activeOrders = await _getActiveOrdersWithCache();
-
       final avgCompletionHours =
           await _getAverageCompletionTime(order.laundryUniqueName);
 
-      final input = [
-        [
-          order.weight,
-          order.laundrySpeed.toLowerCase() == 'express' ? 1.0 : 0.0,
-          activeOrders.length.toDouble(),
-          order.createdAt.weekday.toDouble(),
-          order.clothes.toDouble(),
-          avgCompletionHours,
-        ]
-      ];
-
-      final normalizedInput = _normalizeInput(input);
-
-      final customModel = await FirebaseModelDownloader.instance.getModel(
-        'laundry_completion_model',
-        FirebaseModelDownloadType.latestModel,
+      final estimatedCompletion =
+          await DateEstimator.calculateEstimatedCompletionWithAI(
+        order.laundrySpeed,
+        order.weight,
+        order.clothes.toDouble(),
+        activeOrders.length,
+        order.createdAt.weekday,
+        avgCompletionHours,
       );
 
-      final interpreter = Interpreter.fromFile(customModel.file);
-
-      final output = List.filled(1, 0.0).reshape([1, 1]);
-      interpreter.run(normalizedInput, output);
-
-      final predictedDays = output[0][0];
-
-      final predictedHours = (predictedDays * 24).toInt();
-
-      if (predictedHours < 0) {
-        throw Exception('Negative prediction from model');
-      }
-
-      final result = order.createdAt.add(Duration(hours: predictedHours));
-      return Right(result);
+      return Right(estimatedCompletion);
     } catch (e) {
       _cachedActiveOrders = null;
-      final activeOrders = await repository.getActiveOrders();
-
-      int days = 1;
-      if (order.laundrySpeed.toLowerCase() == 'express') {
-        days += (order.weight / 20).ceil();
-      } else {
-        days += (order.weight / 10).ceil();
-      }
-      days += (activeOrders.length / 5).ceil();
-
-      final result = order.createdAt.add(Duration(days: days));
-      return Right(result);
+      final estimatedCompletion = DateEstimator.calculateEstimatedCompletion(
+        order.laundrySpeed,
+        order.weight,
+      );
+      return Right(estimatedCompletion);
     } finally {
       _isProcessing = false;
       completer.complete();
