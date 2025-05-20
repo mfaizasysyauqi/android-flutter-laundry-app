@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/user_order_history_screen.dart
+// Berisi tampilan untuk menampilkan riwayat pesanan pengguna.
+// Menyediakan filter untuk menampilkan semua pesanan, selesai, atau dibatalkan.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,16 +18,20 @@ import '../../../providers/order_provider.dart';
 import '../../../widgets/order/order_card.dart';
 import '../../../../domain/entities/order.dart' as domain;
 
+// Kelas utama untuk layar riwayat pesanan
 class UserOrderHistoryScreen extends ConsumerWidget {
+  // Nama rute untuk navigasi
   static const routeName = '/user-order-history-screen';
   const UserOrderHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Mengamati status autentikasi
     final authState = ref.watch(authStateProvider);
 
     return authState.when(
       data: (user) {
+        // Jika pengguna tidak terautentikasi, arahkan ke layar login
         if (user == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.go('/login-screen');
@@ -31,22 +40,29 @@ class UserOrderHistoryScreen extends ConsumerWidget {
             body: Center(child: LoadingIndicator()),
           );
         }
+        // Membangun layar riwayat
         return _buildHistoryScreen(context, ref);
       },
+      // Menampilkan indikator loading saat status autentikasi sedang dimuat
       loading: () => const Scaffold(
         body: Center(child: LoadingIndicator()),
       ),
+      // Menampilkan pesan error jika autentikasi gagal
       error: (error, stack) => Scaffold(
         body: Center(child: Text('Error: $error')),
       ),
     );
   }
 
+  // Membangun tampilan utama layar riwayat
   Widget _buildHistoryScreen(BuildContext context, WidgetRef ref) {
+    // Mengamati filter yang dipilih
     final selectedFilter = ref.watch(orderFilterProvider);
+    // Mengamati daftar riwayat pesanan
     final ordersAsync = ref.watch(historyOrdersProvider);
 
     return Scaffold(
+      // AppBar dengan navigasi
       appBar: AppBar(
         backgroundColor: BackgroundColors.transparent,
         shadowColor: BackgroundColors.transparent,
@@ -57,6 +73,7 @@ class UserOrderHistoryScreen extends ConsumerWidget {
             Icons.chevron_left,
             size: IconSizes.navigationIcon,
           ),
+          // Kembali ke dashboard pengguna
           onPressed: () {
             context.go('/user-dashboard-screen');
           },
@@ -70,6 +87,7 @@ class UserOrderHistoryScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Judul bagian
           Padding(
             padding: const EdgeInsets.only(
               right: PaddingSizes.sectionTitlePadding,
@@ -81,6 +99,7 @@ class UserOrderHistoryScreen extends ConsumerWidget {
               style: AppTypography.sectionTitle,
             ),
           ),
+          // Filter untuk memilih jenis riwayat pesanan
           Container(
             padding: const EdgeInsets.all(PaddingSizes.cardPadding),
             child: SingleChildScrollView(
@@ -114,15 +133,20 @@ class UserOrderHistoryScreen extends ConsumerWidget {
               ),
             ),
           ),
+          // Daftar riwayat pesanan
           Expanded(
             child: ordersAsync.when(
               data: (orders) {
+                // Menampilkan status kosong jika tidak ada riwayat
                 if (orders.isEmpty) {
                   return _buildEmptyState(context, selectedFilter);
                 }
+                // Menampilkan daftar riwayat
                 return _buildOrdersList(orders, ref);
               },
+              // Menampilkan indikator loading saat data diambil
               loading: () => const Center(child: LoadingIndicator()),
+              // Menampilkan pesan error jika gagal mengambil data
               error: (error, stackTrace) => Center(
                 child: Text(
                   'Error: ${error.toString()}',
@@ -136,19 +160,22 @@ class UserOrderHistoryScreen extends ConsumerWidget {
     );
   }
 
+  // Membangun daftar riwayat pesanan
   Widget _buildOrdersList(List<domain.Order> orders, WidgetRef ref) {
     return ListView.builder(
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
+        // Menampilkan kartu pesanan
         return OrderCard(
           order: order,
-          isAdmin: false, // Always false for User screen
+          isAdmin: false,
         );
       },
     );
   }
 
+  // Menampilkan tampilan saat tidak ada riwayat
   Widget _buildEmptyState(BuildContext context, OrderFilter filter) {
     return Center(
       child: Column(

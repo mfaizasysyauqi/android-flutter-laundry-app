@@ -1,4 +1,12 @@
-class Order {
+// File: lib/domain/entities/order.dart
+// Berisi kelas Order untuk merepresentasikan entitas pesanan dalam domain layer.
+
+// Mengimpor package yang diperlukan.
+import 'package:equatable/equatable.dart';
+
+// Kelas Order yang memperluas Equatable untuk perbandingan objek.
+class Order extends Equatable {
+  // Properti untuk menyimpan data pesanan.
   final String id;
   final String laundryUniqueName;
   final String customerUniqueName;
@@ -13,9 +21,10 @@ class Order {
   final DateTime? completedAt;
   final DateTime? cancelledAt;
   final DateTime? updatedAt;
-  final bool isHistory; // Add isHistory field
+  final bool isHistory; // Menandakan apakah pesanan masuk riwayat.
 
-  Order({
+  // Konstruktor dengan parameter wajib dan opsional.
+  const Order({
     required this.id,
     required this.laundryUniqueName,
     required this.customerUniqueName,
@@ -30,6 +39,26 @@ class Order {
     this.completedAt,
     this.cancelledAt,
     this.updatedAt,
-    this.isHistory = false, // Default to false
+    this.isHistory = false, // Default ke false.
   });
+
+  // Override props untuk Equatable, digunakan untuk perbandingan.
+  @override
+  List<Object?> get props => [
+        id,
+        laundryUniqueName,
+        customerUniqueName,
+        clothes,
+        laundrySpeed,
+        vouchers,
+        weight,
+        status,
+        totalPrice,
+        createdAt,
+        estimatedCompletion,
+        completedAt,
+        cancelledAt,
+        updatedAt,
+        isHistory,
+      ];
 }

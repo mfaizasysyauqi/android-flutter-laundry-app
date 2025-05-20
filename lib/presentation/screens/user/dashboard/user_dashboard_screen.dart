@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/user_dashboard_screen.dart
+// Berisi tampilan dashboard untuk pengguna (pelanggan).
+// Menyediakan akses ke pelacakan pesanan, riwayat pesanan, daftar voucher, dan logout.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/presentation/providers/core_provider.dart';
 import 'package:flutter_laundry_app/presentation/providers/order_provider.dart';
@@ -15,18 +20,23 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../providers/auth_provider.dart';
 
+// Kelas utama untuk layar dashboard pengguna
 class UserDashboardScreen extends ConsumerWidget {
+  // Nama rute untuk navigasi
   static const routeName = '/user-dashboard-screen';
 
   const UserDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Mengamati status autentikasi
     final authState = ref.watch(authProvider);
     final user = authState.user;
 
     return Scaffold(
+      // Latar belakang dashboard
       backgroundColor: BackgroundColors.dashboardBackground,
+      // AppBar dengan judul dan tombol logout
       appBar: AppBar(
         backgroundColor: BackgroundColors.appBarBackground,
         shadowColor: BackgroundColors.transparent,
@@ -38,11 +48,13 @@ class UserDashboardScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(
                 horizontal: PaddingSizes.dashboardHorizontal,
               ),
+              // Judul dashboard
               child: Text(
                 'Dashboard',
                 style: AppTypography.appBarTitle,
               ),
             ),
+            // Tombol logout
             IconButton(
               icon: const Icon(
                 Icons.logout,
@@ -56,15 +68,18 @@ class UserDashboardScreen extends ConsumerWidget {
           ],
         ),
       ),
+      // Body utama dengan layout aman
       body: SafeArea(
         child: Column(
           children: [
+            // Menampilkan indikator loading jika pengguna belum terautentikasi
             user == null
                 ? const Center(child: LoadingIndicator())
                 : Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Bagian sambutan
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: PaddingSizes.sectionTitlePadding,
@@ -85,6 +100,7 @@ class UserDashboardScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
+                        // Kontainer untuk layanan
                         Expanded(
                           child: Container(
                             width: double.infinity,
@@ -100,6 +116,7 @@ class UserDashboardScreen extends ConsumerWidget {
                                   PaddingSizes.contentContainerPadding),
                               child: Column(
                                 children: [
+                                  // Judul bagian layanan
                                   Padding(
                                     padding: const EdgeInsets.all(
                                         PaddingSizes.formOuterPadding),
@@ -114,14 +131,17 @@ class UserDashboardScreen extends ConsumerWidget {
                                       ],
                                     ),
                                   ),
+                                  // Daftar layanan dalam scroll view
                                   Expanded(
                                     child: SingleChildScrollView(
                                       child: Column(
                                         children: [
+                                          // Baris untuk pelacakan dan riwayat pesanan
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
+                                              // Tombol pelacakan pesanan
                                               GestureDetector(
                                                 onTap: () {
                                                   context.go(
@@ -142,6 +162,7 @@ class UserDashboardScreen extends ConsumerWidget {
                                                   ),
                                                 ),
                                               ),
+                                              // Tombol riwayat pesanan
                                               GestureDetector(
                                                 onTap: () {
                                                   context.go(
@@ -165,6 +186,7 @@ class UserDashboardScreen extends ConsumerWidget {
                                             ],
                                           ),
                                           const SizedBox(height: 16),
+                                          // Baris untuk daftar voucher
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
@@ -209,20 +231,25 @@ class UserDashboardScreen extends ConsumerWidget {
     );
   }
 
+  // Menangani proses logout
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
+    // Fungsi untuk navigasi ke layar login
     navigateToLogin() => context.go('/login-screen');
 
     try {
+      // Memanggil fungsi logout dari Firebase
       await ref.read(firebaseAuthProvider).signOut();
+      // Mengosongkan data provider
       ref.invalidate(currentUserUniqueNameProvider);
       ref.invalidate(customerOrdersProvider);
-      ref.invalidate(
-          voucher_provider.voucherListProvider); // Invalidate voucher list
+      ref.invalidate(voucher_provider.voucherListProvider);
 
+      // Navigasi ke layar login jika widget masih terpasang
       if (context.mounted) {
         navigateToLogin();
       }
     } catch (e) {
+      // Menampilkan pesan error jika logout gagal
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error signing out: $e')),

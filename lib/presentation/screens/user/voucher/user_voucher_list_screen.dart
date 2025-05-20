@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/user_voucher_list_screen.dart
+// Berisi tampilan daftar voucher untuk pengguna (pelanggan).
+// Menyediakan filter untuk menampilkan semua voucher, diskon, atau laundry gratis, serta navigasi ke detail voucher.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/providers/auth_provider.dart';
@@ -13,7 +18,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../providers/voucher_provider.dart' as voucher_provider;
 
+// Kelas utama untuk layar daftar voucher pengguna
 class UserVoucherListScreen extends ConsumerStatefulWidget {
+  // Nama rute untuk navigasi
   static const routeName = '/user-voucher-list-screen';
   const UserVoucherListScreen({super.key});
 
@@ -22,7 +29,9 @@ class UserVoucherListScreen extends ConsumerStatefulWidget {
 }
 
 class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
+  // Filter yang dipilih
   String selectedTab = 'All Vouchers';
+  // Opsi filter yang tersedia
   static const List<String> filterOptions = [
     'All Vouchers',
     'Discount',
@@ -31,9 +40,11 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Mengamati status autentikasi
     final authState = ref.watch(authProvider);
     final user = authState.user;
 
+    // Jika pengguna tidak terautentikasi, arahkan ke layar login
     if (user == null && authState.status != AuthStatus.loading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.go('/login-screen');
@@ -43,9 +54,11 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
       );
     }
 
+    // Mengambil provider daftar voucher berdasarkan ID pengguna
     final voucherListProvider = voucher_provider.voucherListProvider(user?.id);
 
     return Scaffold(
+      // AppBar untuk navigasi dan judul
       appBar: AppBar(
         backgroundColor: BackgroundColors.transparent,
         shadowColor: BackgroundColors.transparent,
@@ -56,6 +69,7 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
             Icons.chevron_left,
             size: IconSizes.navigationIcon,
           ),
+          // Kembali ke dashboard pengguna
           onPressed: () {
             context.go('/user-dashboard-screen');
           },
@@ -68,6 +82,7 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
       ),
       body: Column(
         children: [
+          // Judul bagian
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -85,6 +100,7 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
             ],
           ),
           const SizedBox(height: PaddingSizes.contentContainerPadding),
+          // Filter untuk memilih jenis voucher
           Container(
             padding: const EdgeInsets.all(PaddingSizes.cardPadding),
             child: SingleChildScrollView(
@@ -100,6 +116,7 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
                             selectedFilter: selectedTab,
                             label: tabName,
                             onSelected: (value) {
+                              // Memperbarui filter yang dipilih
                               setState(() {
                                 selectedTab = value;
                               });
@@ -110,15 +127,19 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
               ),
             ),
           ),
+          // Daftar voucher
           Expanded(
             child: Consumer(
               builder: (context, ref, child) {
+                // Mengamati status voucher dari provider
                 final voucherState = ref.watch(voucherListProvider);
 
+                // Menampilkan indikator loading saat data diambil
                 if (voucherState.isLoading) {
                   return const Center(child: LoadingIndicator());
                 }
 
+                // Menangani error saat mengambil data
                 if (voucherState.error != null) {
                   return Center(
                     child: Column(
@@ -135,6 +156,7 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
                   );
                 }
 
+                // Memfilter voucher berdasarkan tab yang dipilih
                 List<Voucher> filteredVouchers = voucherState.vouchers;
                 if (selectedTab == 'Discount') {
                   filteredVouchers = voucherState.vouchers
@@ -148,10 +170,12 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
                       .toList();
                 }
 
+                // Menampilkan status kosong jika tidak ada voucher
                 if (filteredVouchers.isEmpty) {
                   return _buildEmptyState(context, selectedTab);
                 }
 
+                // Menampilkan daftar voucher
                 return SafeArea(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(
@@ -162,9 +186,9 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
                       final uniqueName =
                           voucherState.laundryNames[voucher.laundryId] ??
                               'Unknown Laundry';
+                      // Menampilkan kartu voucher
                       return VoucherCard(
                         voucher: voucher,
-                            
                         uniqueName: uniqueName,
                       );
                     },
@@ -178,6 +202,7 @@ class UserVoucherListScreenState extends ConsumerState<UserVoucherListScreen> {
     );
   }
 
+  // Menampilkan tampilan saat tidak ada voucher
   Widget _buildEmptyState(BuildContext context, String tabName) {
     return Center(
       child: Column(

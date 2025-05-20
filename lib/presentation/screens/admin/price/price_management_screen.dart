@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/price_management_screen.dart
+// Berisi tampilan untuk mengelola harga laundry per kilogram oleh admin.
+// Menyediakan formulir untuk memperbarui harga reguler dan ekspres.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_laundry_app/presentation/style/app_typography.dart';
@@ -13,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:developer' as developer;
 import '../../../providers/user_provider.dart';
 
+// Kelas utama untuk layar pengelolaan harga
 class PriceManagementScreen extends ConsumerStatefulWidget {
   static const routeName = '/price-management-screen';
   const PriceManagementScreen({super.key});
@@ -23,20 +29,25 @@ class PriceManagementScreen extends ConsumerStatefulWidget {
 }
 
 class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
+  // Kunci untuk validasi formulir
   final _formKey = GlobalKey<FormState>();
+  // Kontroler untuk input harga
   final TextEditingController _regulerPriceController = TextEditingController();
   final TextEditingController _expressPriceController = TextEditingController();
+  // Status loading dan pesan error
   bool _isLoading = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    // Memuat harga awal setelah inisialisasi
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialPrice();
     });
   }
 
+  // Memuat harga awal dari data pengguna
   Future<void> _loadInitialPrice() async {
     final userState = ref.read(userProvider);
     final firebaseAuth = FirebaseAuth.instance;
@@ -86,6 +97,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
     super.dispose();
   }
 
+  // Memperbarui harga laundry
   Future<void> _updatePrice() async {
     if (_formKey.currentState!.validate()) {
       final newRegulerPrice = int.parse(_regulerPriceController.text);
@@ -97,6 +109,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
       });
 
       try {
+        // Memperbarui harga melalui provider
         await ref
             .read(userProvider.notifier)
             .updateLaundryPrice(newRegulerPrice, newExpressPrice);
@@ -123,6 +136,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
     }
   }
 
+  // Validasi input harga
   String? _validatePrice(String? value) {
     if (value == null || value.isEmpty) {
       return 'Price is required';
@@ -142,6 +156,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
         surfaceTintColor: BackgroundColors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          // Kembali ke dashboard
           onPressed: () {
             context.go('/admin-dashboard-screen');
           },
@@ -155,8 +170,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(
-              PaddingSizes.cardPadding), // Updated from medium
+          padding: const EdgeInsets.all(PaddingSizes.cardPadding),
           child: Form(
             key: _formKey,
             child: Column(
@@ -172,6 +186,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
                   style: AppTypography.formSubtitle,
                 ),
                 const SizedBox(height: MarginSizes.formSpacing),
+                // Input harga reguler
                 CustomTextFormField(
                   hintText: 'Enter regular price per kg',
                   labelText: 'Regular Price Per Kg...',
@@ -184,6 +199,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
                   validator: _validatePrice,
                 ),
                 const SizedBox(height: MarginSizes.formFieldSpacing),
+                // Input harga ekspres
                 CustomTextFormField(
                   hintText: 'Enter express price per kg',
                   labelText: 'Express Price Per Kg...',
@@ -196,6 +212,7 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
                   validator: _validatePrice,
                 ),
                 const SizedBox(height: MarginSizes.formSpacing),
+                // Menampilkan indikator loading atau tombol
                 if (_isLoading)
                   const Center(child: LoadingIndicator())
                 else
@@ -204,11 +221,11 @@ class _PriceManagementScreenState extends ConsumerState<PriceManagementScreen> {
                     onPressed: _updatePrice,
                     width: double.infinity,
                   ),
+                // Menampilkan pesan error jika ada
                 if (_errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(
-                        top: PaddingSizes
-                            .sectionTitlePadding), // Updated from medium
+                        top: PaddingSizes.sectionTitlePadding),
                     child: Text(
                       _errorMessage!,
                       style: AppTypography.errorText,

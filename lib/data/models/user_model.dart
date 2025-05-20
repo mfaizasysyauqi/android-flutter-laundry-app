@@ -1,7 +1,13 @@
+// File: user_model.dart
+// Berisi kelas UserModel untuk merepresentasikan data pengguna dan menangani serialisasi/deserialisasi.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_laundry_app/domain/entities/user.dart';
 
+// Kelas UserModel yang memperluas entitas User.
 class UserModel extends User {
+  // Konstruktor dengan parameter wajib.
   UserModel({
     required super.id,
     required super.role,
@@ -15,6 +21,7 @@ class UserModel extends User {
     required super.createdAt,
   });
 
+  // Factory untuk membuat UserModel dari JSON.
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'],
@@ -32,6 +39,7 @@ class UserModel extends User {
     );
   }
 
+  // Method untuk mengonversi UserModel ke JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -47,6 +55,7 @@ class UserModel extends User {
     };
   }
 
+  // Method untuk mengonversi UserModel ke entitas User.
   User toEntity() => User(
         id: id,
         role: role,

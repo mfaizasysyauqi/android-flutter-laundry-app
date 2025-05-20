@@ -1,6 +1,10 @@
+// File: lib/presentation/widgets/panel/voucher_list_panel.dart
+// Berisi panel untuk memilih voucher yang tersedia.
+// Digunakan saat membuat pesanan untuk menerapkan voucher.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/providers/core_provider.dart';
 import 'package:flutter_laundry_app/presentation/providers/user_provider.dart';
@@ -15,13 +19,20 @@ import 'package:flutter_laundry_app/presentation/widgets/common/loading_indicato
 import 'package:flutter_laundry_app/presentation/widgets/voucher/apply_voucher_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Widget panel untuk daftar voucher
 class VoucherListPanel extends ConsumerStatefulWidget {
+  // ID pengguna
   final String? userId;
+  // Berat pakaian
   final double? weight;
+  // ID laundry
   final String? laundryId;
+  // Fungsi saat voucher dipilih
   final Function(String voucherName, String voucherId) onVoucherSelected;
+  // Fungsi saat panel ditutup
   final VoidCallback onClose;
 
+  // Konstruktor dengan parameter wajib dan opsional
   const VoucherListPanel({
     super.key,
     this.userId,
@@ -35,14 +46,18 @@ class VoucherListPanel extends ConsumerStatefulWidget {
   VoucherListPanelState createState() => VoucherListPanelState();
 }
 
+// State untuk mengelola logika panel
 class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
+  // Tab filter yang dipilih
   String _selectedTab = 'All Vouchers';
+  // Opsi filter
   static const List<String> _filterOptions = [
     'All Vouchers',
     'Discount',
     'Free Laundry',
   ];
 
+  // Memeriksa kelayakan voucher
   bool _isVoucherEligible(Voucher voucher, double? weight) {
     final now = DateTime.now();
 
@@ -59,7 +74,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
       case 'First Laundry':
         return true;
       case 'Laundry on Birthdate':
-        return false; // Implement birthdate check
+        return false; // Perlu logika cek ulang tahun
       case 'Weekday Laundry':
         return now.weekday >= 1 && now.weekday <= 5;
       case 'New Service':
@@ -78,6 +93,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
     }
   }
 
+  // Debug voucher di Firestore
   Future<void> _debugFirestoreVouchers(String userId) async {
     try {
       final snapshot = await FirebaseFirestore.instance
@@ -135,7 +151,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
                     Icons.chevron_left,
                     size: IconSizes.navigationIcon,
                   ),
-                  onPressed: widget.onClose,
+                  onPressed: widget.onClose, // Tutup panel
                 ),
                 Text(
                   'Select Voucher',
@@ -165,7 +181,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
                                 label: tabName,
                                 onSelected: (value) {
                                   setState(() {
-                                    _selectedTab = value;
+                                    _selectedTab = value; // Perbarui tab
                                   });
                                 },
                               ),
@@ -291,7 +307,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
                               widget.onVoucherSelected(voucher.name, voucher.id);
                               debugPrint(
                                   'Applying voucher: name=${voucher.name}, id=${voucher.id}');
-                              Navigator.pop(context);
+                              Navigator.pop(context); // Tutup panel
                             },
                           ),
                         );

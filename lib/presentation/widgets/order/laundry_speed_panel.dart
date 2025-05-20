@@ -1,3 +1,8 @@
+// File: lib/presentation/widgets/panel/laundry_speed_panel.dart
+// Berisi panel untuk memilih kecepatan laundry dengan prediksi waktu selesai.
+// Digunakan pada proses pembuatan pesanan.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/data/models/order_model.dart';
 import 'package:flutter_laundry_app/presentation/providers/order_provider.dart'
@@ -9,11 +14,16 @@ import 'package:flutter_laundry_app/presentation/style/sizes/padding_sizes.dart'
 import 'package:flutter_laundry_app/presentation/widgets/common/loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Widget panel untuk memilih kecepatan laundry
 class LaundrySpeedPanel extends ConsumerWidget {
+  // Berat pakaian
   final double weight;
+  // Jumlah pakaian
   final int clothes;
+  // Fungsi saat kecepatan dipilih
   final Function(String) onSpeedSelected;
 
+  // Konstruktor dengan parameter wajib
   const LaundrySpeedPanel({
     super.key,
     required this.weight,
@@ -21,11 +31,13 @@ class LaundrySpeedPanel extends ConsumerWidget {
     required this.onSpeedSelected,
   });
 
+  // Mendapatkan prediksi waktu selesai
   Future<Map<String, DateTime?>> _getRealTimePredictions(
       WidgetRef ref, double weight, int clothes) async {
     final predictUseCase =
         ref.read(order_provider.predictCompletionTimeUseCaseProvider);
 
+    // Model pesanan untuk Express
     final expressOrder = OrderModel(
       id: '',
       laundryUniqueName: '',
@@ -41,6 +53,7 @@ class LaundrySpeedPanel extends ConsumerWidget {
       isHistory: false,
     );
 
+    // Model pesanan untuk Reguler
     final regulerOrder = expressOrder.copyWith(laundrySpeed: 'Reguler');
 
     final expressResult = await predictUseCase(expressOrder);
@@ -61,7 +74,7 @@ class LaundrySpeedPanel extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header Row (always visible)
+              // Header panel
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -69,7 +82,7 @@ class LaundrySpeedPanel extends ConsumerWidget {
                     icon: const Icon(Icons.chevron_left,
                         size: IconSizes.navigationIcon),
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Tutup panel
                     },
                   ),
                   Text('Select Laundry Speed', style: AppTypography.modalTitle),
@@ -77,13 +90,13 @@ class LaundrySpeedPanel extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: MarginSizes.medium),
-              // Prediction Content
+              // Konten prediksi
               FutureBuilder<Map<String, DateTime?>>(
                 future: _getRealTimePredictions(ref, weight, clothes),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const SizedBox(
-                      height: 100, // Reserve space for loading
+                      height: 100,
                       child: Center(child: LoadingIndicator()),
                     );
                   }

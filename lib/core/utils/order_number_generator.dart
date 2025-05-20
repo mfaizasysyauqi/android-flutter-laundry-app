@@ -1,16 +1,23 @@
+// File: order_number_generator.dart
+// Berisi kelas OrderNumberGenerator untuk menghasilkan nomor pesanan unik.
+
+// Mengimpor package dart:math untuk menghasilkan angka acak.
 import 'dart:math';
 
+// Kelas OrderNumberGenerator untuk menghasilkan nomor pesanan unik.
 class OrderNumberGenerator {
+  // Method statis untuk menghasilkan nomor unik.
   static String generateUniqueNumber() {
+    // Inisialisasi objek Random untuk menghasilkan angka acak.
     final random = Random();
     
-    // Get current timestamp and take only the last 6 digits
+    // Ambil timestamp saat ini dan ambil 6 digit terakhir.
     final timestamp = DateTime.now().millisecondsSinceEpoch % 1000000;
     
-    // Generate a random 4-digit number
+    // Hasilkan angka acak 4 digit dan format dengan padding nol di depan.
     final randomNumber = random.nextInt(10000).toString().padLeft(4, '0');
     
-    // Combine to create a 10-digit number
+    // Gabungkan timestamp dan angka acak untuk membuat nomor 10 digit.
     return '$timestamp$randomNumber';
   }
 }

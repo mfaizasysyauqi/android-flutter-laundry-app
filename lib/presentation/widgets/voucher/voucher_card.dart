@@ -1,3 +1,8 @@
+// File: lib/presentation/widgets/voucher/voucher_card.dart
+// Berisi widget kartu untuk menampilkan detail voucher.
+// Digunakan untuk menampilkan voucher di daftar voucher pengguna atau admin.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/providers/auth_provider.dart';
@@ -6,16 +11,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+// Widget kartu voucher
 class VoucherCard extends ConsumerWidget {
+  // Data voucher
   final Voucher voucher;
+  // Nama unik laundry
   final String uniqueName;
 
+  // Konstruktor dengan parameter wajib
   const VoucherCard({
     super.key,
     required this.voucher,
     required this.uniqueName,
   });
 
+  // Mendapatkan deskripsi metode perolehan voucher
   String _getDisplayObtainMethod(String obtainMethod) {
     const methodDescriptions = {
       'Laundry 5 Kg': 'Available for 5 Kg laundry',
@@ -30,6 +40,7 @@ class VoucherCard extends ConsumerWidget {
     return methodDescriptions[obtainMethod] ?? obtainMethod;
   }
 
+  // Mendapatkan deskripsi voucher
   String _getDescription(Voucher voucher) {
     if (voucher.type == 'Discount') {
       return 'Enjoy ${voucher.amount}% discount for new customer';
@@ -53,7 +64,7 @@ class VoucherCard extends ConsumerWidget {
           final route = isWorker
               ? '/admin-voucher-details-screen'
               : '/user-voucher-details-screen';
-          context.push(route, extra: voucher);
+          context.push(route, extra: voucher); // Navigasi ke detail voucher
         },
         child: ClipPath(
           clipper:
@@ -101,7 +112,7 @@ class VoucherCard extends ConsumerWidget {
                                       ),
                                       onPressed: () {
                                         context.push('/edit-voucher-screen',
-                                            extra: voucher);
+                                            extra: voucher); // Edit voucher
                                       },
                                     )
                                   : const SizedBox.shrink(),
@@ -186,6 +197,7 @@ class VoucherCard extends ConsumerWidget {
   }
 }
 
+// Clipper untuk membuat bentuk kartu dengan takik
 class NotchedRectangleClipper extends CustomClipper<Path> {
   final double notchRadius;
   final double cornerRadius;
@@ -257,6 +269,7 @@ class NotchedRectangleClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }
 
+// Painter untuk garis putus-putus
 class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

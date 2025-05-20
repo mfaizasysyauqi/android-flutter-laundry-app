@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/order_tracking_screen.dart
+// Berisi tampilan untuk melacak pesanan pengguna.
+// Menyediakan filter untuk menampilkan semua pesanan, tertunda, diproses, selesai, atau dibatalkan.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/order.dart';
 import 'package:flutter_laundry_app/presentation/providers/auth_provider.dart';
@@ -13,15 +18,18 @@ import 'package:go_router/go_router.dart';
 import '../../../widgets/order/order_card.dart';
 import '../../../widgets/common/loading_indicator.dart';
 
+// Kelas utama untuk layar pelacakan pesanan
 class OrderTrackingScreen extends ConsumerWidget {
   const OrderTrackingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Mengamati status autentikasi
     final authState = ref.watch(authStateProvider);
 
     return authState.when(
       data: (user) {
+        // Jika pengguna tidak terautentikasi, arahkan ke layar login
         if (user == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.go('/login-screen');
@@ -30,22 +38,29 @@ class OrderTrackingScreen extends ConsumerWidget {
             body: Center(child: LoadingIndicator()),
           );
         }
+        // Membangun layar pesanan
         return _buildOrdersScreen(context, ref);
       },
+      // Menampilkan indikator loading saat status autentikasi sedang dimuat
       loading: () => const Scaffold(
         body: Center(child: LoadingIndicator()),
       ),
+      // Menampilkan pesan error jika autentikasi gagal
       error: (error, stack) => Scaffold(
         body: Center(child: Text('Error: $error')),
       ),
     );
   }
 
+  // Membangun tampilan utama layar pesanan
   Widget _buildOrdersScreen(BuildContext context, WidgetRef ref) {
+    // Mengamati filter yang dipilih
     final selectedFilter = ref.watch(orderFilterProvider);
+    // Mengamati daftar pesanan
     final ordersAsync = ref.watch(customerOrdersProvider);
 
     return Scaffold(
+      // AppBar dengan navigasi dan tombol refresh
       appBar: AppBar(
         backgroundColor: BackgroundColors.transparent,
         shadowColor: BackgroundColors.transparent,
@@ -55,6 +70,7 @@ class OrderTrackingScreen extends ConsumerWidget {
             Icons.chevron_left,
             size: IconSizes.navigationIcon,
           ),
+          // Kembali ke dashboard pengguna
           onPressed: () {
             context.go('/user-dashboard-screen');
           },
@@ -65,6 +81,7 @@ class OrderTrackingScreen extends ConsumerWidget {
         ),
         centerTitle: true,
         actions: [
+          // Tombol untuk menyegarkan daftar pesanan
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.refresh(customerOrdersProvider),
@@ -74,6 +91,7 @@ class OrderTrackingScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Judul bagian
           Padding(
             padding: const EdgeInsets.only(
               right: PaddingSizes.sectionTitlePadding,
@@ -85,6 +103,7 @@ class OrderTrackingScreen extends ConsumerWidget {
               style: AppTypography.sectionTitle,
             ),
           ),
+          // Filter untuk memilih jenis pesanan
           Container(
             padding: const EdgeInsets.all(PaddingSizes.cardPadding),
             child: SingleChildScrollView(
@@ -134,15 +153,20 @@ class OrderTrackingScreen extends ConsumerWidget {
               ),
             ),
           ),
+          // Daftar pesanan
           Expanded(
             child: ordersAsync.when(
               data: (orders) {
+                // Menampilkan status kosong jika tidak ada pesanan
                 if (orders.isEmpty) {
                   return _buildEmptyState(context, selectedFilter);
                 }
+                // Menampilkan daftar pesanan
                 return SafeArea(child: _buildOrdersList(orders));
               },
+              // Menampilkan indikator loading saat data diambil
               loading: () => const Center(child: LoadingIndicator()),
+              // Menampilkan pesan error jika gagal mengambil data
               error: (error, stackTrace) => Center(
                 child: Text(
                   'Error: ${error.toString()}',
@@ -156,6 +180,7 @@ class OrderTrackingScreen extends ConsumerWidget {
     );
   }
 
+  // Mendapatkan nama filter untuk ditampilkan
   String _getFilterName(OrderFilter filter) {
     switch (filter) {
       case OrderFilter.all:
@@ -171,17 +196,20 @@ class OrderTrackingScreen extends ConsumerWidget {
     }
   }
 
+  // Membangun daftar pesanan
   Widget _buildOrdersList(List<Order> orders) {
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: PaddingSizes.sectionTitlePadding),
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
+        // Menampilkan kartu pesanan
         return OrderCard(order: order, isAdmin: false);
       },
     );
   }
 
+  // Menampilkan tampilan saat tidak ada pesanan
   Widget _buildEmptyState(BuildContext context, OrderFilter filter) {
     return Center(
       child: Column(
