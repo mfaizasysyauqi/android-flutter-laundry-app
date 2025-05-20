@@ -1,3 +1,8 @@
+// File: lib/presentation/widgets/common/custom_text_form_field.dart
+// Berisi widget kolom formulir kustom dengan gaya konsisten dan dukungan interaksi.
+// Digunakan untuk input teks di berbagai formulir aplikasi.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_laundry_app/presentation/style/app_typography.dart';
@@ -7,24 +12,42 @@ import 'package:flutter_laundry_app/presentation/style/sizes/button_sizes.dart';
 import 'package:flutter_laundry_app/presentation/style/sizes/padding_sizes.dart';
 import 'package:flutter_laundry_app/presentation/style/sizes/border_sizes.dart';
 
+// Widget kolom formulir kustom
 class CustomTextFormField extends StatefulWidget {
+  // Teks petunjuk
   final String hintText;
+  // Teks label
   final String? labelText;
+  // Kontroler teks
   final TextEditingController? controller;
+  // Status teks tersembunyi
   final bool obscureText;
+  // Tipe keyboard
   final TextInputType keyboardType;
+  // Ikon sebelum teks
   final IconData? prefixIcon;
+  // Ikon setelah teks
   final Widget? suffixIcon;
+  // Aksi input teks
   final TextInputAction? textInputAction;
+  // Fungsi validasi
   final String? Function(String?)? validator;
+  // Status hanya baca
   final bool readOnly;
+  // Status aktif
   final bool enabled;
+  // Fungsi saat diketuk
   final VoidCallback? onTap;
+  // Fungsi saat disimpan
   final void Function(String?)? onSaved;
+  // Fungsi saat teks berubah
   final void Function(String)? onChanged;
+  // Format input
   final List<TextInputFormatter>? inputFormatters;
-  final FocusNode? focusNode; // Added focusNode parameter
+  // Node fokus
+  final FocusNode? focusNode;
 
+  // Konstruktor dengan parameter wajib dan opsional
   const CustomTextFormField({
     super.key,
     required this.hintText,
@@ -42,14 +65,16 @@ class CustomTextFormField extends StatefulWidget {
     this.onSaved,
     this.onChanged,
     this.inputFormatters,
-    this.focusNode, // Include in constructor
+    this.focusNode,
   });
 
   @override
   CustomTextFormFieldState createState() => CustomTextFormFieldState();
 }
 
+// State untuk mengelola interaksi kolom formulir
 class CustomTextFormFieldState extends State<CustomTextFormField> {
+  // Status hover mouse
   bool isHovered = false;
 
   @override
@@ -67,7 +92,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         onTap: widget.enabled ? widget.onTap : null,
         onChanged: widget.enabled ? widget.onChanged : null,
         inputFormatters: widget.inputFormatters,
-        focusNode: widget.focusNode, // Pass focusNode to TextFormField
+        focusNode: widget.focusNode,
         decoration: InputDecoration(
           hintText: widget.hintText,
           labelText: widget.labelText,
@@ -78,7 +103,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
           filled: true,
           fillColor: widget.enabled
               ? BackgroundColors.formFieldFill
-              : BackgroundColors.formFieldFill.withAlpha(128),
+              : BackgroundColors.formFieldFill.withAlpha(128), // Warna saat dinonaktifkan
           contentPadding: const EdgeInsets.symmetric(
             vertical: PaddingSizes.formFieldVertical,
             horizontal: PaddingSizes.formFieldHorizontal,

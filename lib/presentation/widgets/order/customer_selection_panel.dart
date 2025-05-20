@@ -1,3 +1,8 @@
+// File: lib/presentation/widgets/panel/customer_selection_panel.dart
+// Berisi panel untuk memilih pelanggan berdasarkan nama unik.
+// Digunakan pada proses pembuatan pesanan oleh admin.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/user.dart';
 import 'package:flutter_laundry_app/presentation/providers/user_provider.dart'
@@ -10,9 +15,12 @@ import 'package:flutter_laundry_app/presentation/widgets/common/custom_text_form
 import 'package:flutter_laundry_app/presentation/widgets/common/loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Widget panel untuk memilih pelanggan
 class CustomerSelectionPanel extends ConsumerStatefulWidget {
+  // Fungsi saat pelanggan dipilih
   final Function(String uniqueName, String userId) onCustomerSelected;
 
+  // Konstruktor dengan parameter wajib
   const CustomerSelectionPanel({
     super.key,
     required this.onCustomerSelected,
@@ -22,20 +30,24 @@ class CustomerSelectionPanel extends ConsumerStatefulWidget {
   CustomerSelectionPanelState createState() => CustomerSelectionPanelState();
 }
 
+// State untuk mengelola logika panel
 class CustomerSelectionPanelState
     extends ConsumerState<CustomerSelectionPanel> {
   @override
   Widget build(BuildContext context) {
+    // Ambil data pelanggan dari provider
     final customersAsync =
-        ref.watch(user_provider.customersProvider); // Changed to ref.watch
+        ref.watch(user_provider.customersProvider);
 
     return SafeArea(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.7,
+        height: MediaQuery.of(context).size.height * 0.7, // Tinggi panel
         padding: const EdgeInsets.all(PaddingSizes.cardPadding),
         child: customersAsync.when(
           data: (customers) {
+            // Kontroler untuk pencarian
             TextEditingController searchController = TextEditingController();
+            // Daftar pelanggan yang difilter
             List<User> filteredCustomers = List.from(customers);
 
             return StatefulBuilder(
@@ -46,23 +58,25 @@ class CustomerSelectionPanelState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Tombol kembali
                         IconButton(
                           icon: const Icon(
                             Icons.chevron_left,
                             size: IconSizes.navigationIcon,
                           ),
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(context); // Tutup panel
                           },
                         ),
                         Text(
                           'Select Unique Name',
                           style: AppTypography.modalTitle,
                         ),
-                        const SizedBox(width: 48),
+                        const SizedBox(width: 48), // Spacer
                       ],
                     ),
                     const SizedBox(height: MarginSizes.modalTop),
+                    // Kolom pencarian
                     CustomTextFormField(
                       controller: searchController,
                       hintText: "Search Unique Name...",
@@ -78,6 +92,7 @@ class CustomerSelectionPanelState
                       },
                     ),
                     const SizedBox(height: MarginSizes.moderate),
+                    // Daftar pelanggan
                     Flexible(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -90,7 +105,7 @@ class CustomerSelectionPanelState
                                 filteredCustomers[index].uniqueName,
                                 filteredCustomers[index].id,
                               );
-                              Navigator.pop(context);
+                              Navigator.pop(context); // Tutup panel
                             },
                           );
                         },
@@ -110,7 +125,7 @@ class CustomerSelectionPanelState
                 ElevatedButton(
                   onPressed: () {
                     ref.invalidate(
-                        user_provider.customersProvider); // Trigger re-fetch
+                        user_provider.customersProvider); // Muat ulang data
                   },
                   child: const Text('Retry'),
                 ),

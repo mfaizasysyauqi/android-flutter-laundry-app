@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/manage_orders_screen.dart
+// Berisi tampilan untuk mengelola pesanan aktif oleh admin.
+// Menyediakan filter untuk menampilkan pesanan berdasarkan status (semua, menunggu, diproses, selesai, dibatalkan).
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/order.dart' as domain;
 import 'package:flutter_laundry_app/presentation/providers/auth_provider.dart';
@@ -13,15 +18,19 @@ import 'package:go_router/go_router.dart';
 import '../../../widgets/order/order_card.dart';
 import '../../../widgets/common/loading_indicator.dart';
 
+// Kelas utama untuk layar pengelolaan pesanan
 class ManageOrdersScreen extends ConsumerWidget {
   const ManageOrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Mengamati status autentikasi
     final authState = ref.watch(authStateProvider);
 
+    // Menangani status autentikasi dengan AsyncValue
     return authState.when(
       data: (user) {
+        // Jika pengguna tidak terautentikasi, arahkan ke layar login
         if (user == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.go('/login-screen');
@@ -30,6 +39,7 @@ class ManageOrdersScreen extends ConsumerWidget {
             body: Center(child: LoadingIndicator()),
           );
         }
+        // Membangun layar pengelolaan pesanan jika pengguna valid
         return _buildOrdersScreen(context, ref);
       },
       loading: () => const Scaffold(
@@ -41,7 +51,9 @@ class ManageOrdersScreen extends ConsumerWidget {
     );
   }
 
+  // Membangun tampilan utama layar pengelolaan pesanan
   Widget _buildOrdersScreen(BuildContext context, WidgetRef ref) {
+    // Mengamati filter yang dipilih dan data pesanan
     final selectedFilter = ref.watch(orderFilterProvider);
     final ordersAsync = ref.watch(laundryOrdersProvider);
 
@@ -56,6 +68,7 @@ class ManageOrdersScreen extends ConsumerWidget {
             Icons.chevron_left,
             size: IconSizes.navigationIcon,
           ),
+          // Kembali ke dashboard
           onPressed: () {
             context.go('/admin-dashboard-screen');
           },
@@ -66,6 +79,7 @@ class ManageOrdersScreen extends ConsumerWidget {
         ),
         centerTitle: true,
         actions: [
+          // Tombol untuk memperbarui daftar pesanan
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.refresh(laundryOrdersProvider),
@@ -86,6 +100,7 @@ class ManageOrdersScreen extends ConsumerWidget {
               style: AppTypography.sectionTitle,
             ),
           ),
+          // Filter untuk memilih status pesanan
           Container(
             padding: const EdgeInsets.all(PaddingSizes.cardPadding),
             child: SingleChildScrollView(
@@ -135,6 +150,7 @@ class ManageOrdersScreen extends ConsumerWidget {
               ),
             ),
           ),
+          // Menampilkan daftar pesanan atau status lainnya
           Expanded(
             child: ordersAsync.when(
               data: (orders) {
@@ -157,6 +173,7 @@ class ManageOrdersScreen extends ConsumerWidget {
     );
   }
 
+  // Mendapatkan nama filter untuk ditampilkan
   String _getFilterName(OrderFilter filter) {
     switch (filter) {
       case OrderFilter.all:
@@ -172,16 +189,19 @@ class ManageOrdersScreen extends ConsumerWidget {
     }
   }
 
+  // Membangun daftar pesanan
   Widget _buildOrdersList(List<domain.Order> orders) {
     return ListView.builder(
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
+        // Menampilkan kartu pesanan dengan mode admin
         return OrderCard(order: order, isAdmin: true);
       },
     );
   }
 
+  // Menampilkan tampilan saat tidak ada pesanan
   Widget _buildEmptyState(BuildContext context, OrderFilter filter) {
     return Center(
       child: Column(

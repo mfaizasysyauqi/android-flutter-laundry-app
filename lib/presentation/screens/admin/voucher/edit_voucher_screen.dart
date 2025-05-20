@@ -1,8 +1,12 @@
+// File: lib/presentation/screens/edit_voucher_screen.dart
+// Berisi tampilan untuk mengedit atau menghapus voucher yang ada oleh admin.
+// Menyediakan formulir untuk memperbarui detail voucher dan tombol untuk menghapus voucher.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart';
 import 'package:flutter_laundry_app/presentation/style/app_typography.dart';
 import 'package:flutter_laundry_app/presentation/style/colors/button_colors.dart';
-
 import 'package:flutter_laundry_app/presentation/style/sizes/icon_sizes.dart';
 import 'package:flutter_laundry_app/presentation/style/sizes/margin_sizes.dart';
 import 'package:flutter_laundry_app/presentation/style/sizes/padding_sizes.dart';
@@ -12,7 +16,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../domain/entities/voucher.dart';
 
+// Kelas utama untuk layar pengeditan voucher
 class EditVoucherScreen extends ConsumerStatefulWidget {
+  // Voucher yang akan diedit
   final Voucher voucher;
 
   const EditVoucherScreen({super.key, required this.voucher});
@@ -22,20 +28,26 @@ class EditVoucherScreen extends ConsumerStatefulWidget {
 }
 
 class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
+  // Kunci untuk validasi formulir
   final _formKey = GlobalKey<FormState>();
+  // Kontroler untuk input formulir
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   late TextEditingController _typeController;
   late TextEditingController _obtainMethodController;
   late TextEditingController _validityPeriodController;
+  // Tanggal kadaluarsa voucher
   DateTime? _validityPeriod;
+  // Status pembaruan dan penghapusan
   bool _isUpdating = false;
   bool _isDeleting = false;
 
+  // Daftar opsi jenis voucher
   final List<String> _voucherTypes = [
     'Free Laundry',
     'Discount',
   ];
+  // Daftar opsi metode perolehan
   final List<String> _obtainMethods = [
     'Laundry 5 Kg',
     'Laundry 10 Kg',
@@ -50,6 +62,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
   @override
   void initState() {
     super.initState();
+    // Inisialisasi kontroler dengan data voucher
     _nameController = TextEditingController(text: widget.voucher.name);
     _amountController =
         TextEditingController(text: widget.voucher.amount.toString());
@@ -68,6 +81,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
 
   @override
   void dispose() {
+    // Membersihkan kontroler
     _nameController.dispose();
     _amountController.dispose();
     _typeController.dispose();
@@ -76,6 +90,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
     super.dispose();
   }
 
+  // Menampilkan pemilih tanggal untuk masa berlaku
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -106,6 +121,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
     }
   }
 
+  // Menghapus masa berlaku
   void _clearValidityPeriod() {
     setState(() {
       _validityPeriod = null;
@@ -113,6 +129,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
     });
   }
 
+  // Memperbarui voucher
   void _updateVoucher() {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -131,6 +148,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
         return;
       }
 
+      // Membuat entitas voucher yang diperbarui
       final updatedVoucher = Voucher(
         id: widget.voucher.id,
         name: _nameController.text,
@@ -142,17 +160,21 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
         ownerVoucherIds: widget.voucher.ownerVoucherIds,
       );
 
+      // Memperbarui voucher melalui provider
       ref.read(editVoucherProvider.notifier).updateVoucher(updatedVoucher);
     }
   }
 
+  // Menghapus voucher
   void _deleteVoucher() {
     setState(() {
       _isDeleting = true;
     });
+    // Menghapus voucher melalui provider
     ref.read(editVoucherProvider.notifier).deleteVoucher(widget.voucher.id);
   }
 
+  // Menampilkan modal untuk memilih opsi
   void _showOptionsModal({
     required BuildContext context,
     required List<String> options,
@@ -178,6 +200,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Header modal
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -203,6 +226,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                       ],
                     ),
                     const SizedBox(height: MarginSizes.modalTop),
+                    // Kolom pencarian
                     CustomTextFormField(
                       controller: searchController,
                       hintText: "Search $title...",
@@ -218,6 +242,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                       },
                     ),
                     const SizedBox(height: MarginSizes.moderate),
+                    // Daftar opsi
                     Flexible(
                       child: filteredOptions.isEmpty
                           ? const Center(child: Text('No options found'))
@@ -258,6 +283,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Mengamati status pembaruan atau penghapusan voucher
     ref.listen<AsyncValue<Voucher?>>(editVoucherProvider, (previous, next) {
       ScaffoldMessenger.of(context).clearSnackBars();
       next.when(
@@ -304,6 +330,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      // AppBar untuk navigasi dan judul
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -312,6 +339,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
             Icons.chevron_left,
             size: IconSizes.navigationIcon,
           ),
+          // Kembali ke daftar voucher
           onPressed: () {
             context.go('/admin-voucher-list-screen');
           },
@@ -331,36 +359,39 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Judul formulir
               Text(
                 'Edit Voucher',
                 style: AppTypography.sectionTitle.copyWith(color: Colors.black),
               ),
               const SizedBox(height: 8),
               Text(
-                'Modify existing vouchers to update discounts, validity, or terms as needed.',
+                'Modify the existing voucher to update discount, validity period, or conditions as needed.',
                 style: AppTypography.formInstruction,
               ),
               const SizedBox(height: PaddingSizes.screenEdgePadding),
+              // Input nama voucher
               CustomTextFormField(
                 hintText: 'Voucher Name',
                 labelText: 'Voucher Name',
                 controller: _nameController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter voucher name';
+                    return 'Please enter the voucher name';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input jumlah voucher
               CustomTextFormField(
-                hintText: 'Voucher Amount',
-                labelText: 'Voucher Amount',
+                hintText: 'Amount',
+                labelText: 'Amount',
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter voucher amount';
+                    return 'Please enter the voucher amount';
                   }
                   final amount = double.tryParse(value);
                   if (amount == null || amount <= 0) {
@@ -370,6 +401,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                 },
               ),
               const SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input tipe voucher
               CustomTextFormField(
                 hintText: 'Voucher Type',
                 labelText: 'Voucher Type',
@@ -383,7 +415,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select voucher type';
+                    return 'Please select a voucher type';
                   }
                   return null;
                 },
@@ -394,16 +426,17 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                 ),
               ),
               const SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input metode perolehan
               CustomTextFormField(
-                hintText: 'How to get a voucher',
-                labelText: 'How to get a voucher',
+                hintText: 'How to Obtain Voucher',
+                labelText: 'How to Obtain Voucher',
                 controller: _obtainMethodController,
                 readOnly: true,
                 onTap: () => _showOptionsModal(
                   context: context,
                   options: _obtainMethods,
                   controller: _obtainMethodController,
-                  title: 'How to get a voucher',
+                  title: 'How to Obtain Voucher',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -418,12 +451,13 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                 ),
               ),
               const SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input masa berlaku
               Row(
                 children: [
                   Expanded(
                     child: CustomTextFormField(
                       hintText: 'Voucher Validity Period',
-                      labelText: 'Voucher Validity Period dd/mm/yyy...',
+                      labelText: 'Voucher Validity Period dd/mm/yyyy...',
                       controller: _validityPeriodController,
                       readOnly: true,
                       onTap: () => _selectDate(context),
@@ -448,6 +482,7 @@ class _EditVoucherScreenState extends ConsumerState<EditVoucherScreen> {
                 ],
               ),
               const SizedBox(height: PaddingSizes.screenEdgePadding),
+              // Tombol aksi
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

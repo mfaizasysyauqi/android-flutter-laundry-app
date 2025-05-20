@@ -1,14 +1,25 @@
+// File: lib/presentation/widgets/voucher/apply_voucher_card.dart
+// Berisi widget kartu untuk menampilkan dan menerapkan voucher.
+// Digunakan pada panel pemilihan voucher.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/style/sizes/padding_sizes.dart';
 import 'package:intl/intl.dart';
 
+// Widget kartu untuk menerapkan voucher
 class ApplyVoucherCard extends StatelessWidget {
+  // Data voucher
   final Voucher voucher;
+  // Nama unik laundry
   final String uniqueName;
+  // Fungsi saat voucher diterapkan
   final VoidCallback onApply;
+  // Status pemilik laundry
   final bool isLaundryOwner;
 
+  // Konstruktor dengan parameter wajib
   const ApplyVoucherCard({
     super.key,
     required this.voucher,
@@ -17,6 +28,7 @@ class ApplyVoucherCard extends StatelessWidget {
     required this.isLaundryOwner,
   });
 
+  // Mendapatkan deskripsi metode perolehan voucher
   String _getDisplayObtainMethod(String obtainMethod) {
     const methodDescriptions = {
       'Laundry 5 Kg': 'Available for 5 Kg laundry',
@@ -31,6 +43,7 @@ class ApplyVoucherCard extends StatelessWidget {
     return methodDescriptions[obtainMethod] ?? obtainMethod;
   }
 
+  // Mendapatkan deskripsi voucher
   String _getDescription(Voucher voucher) {
     if (voucher.type == 'Discount') {
       return 'Enjoy ${voucher.amount}% discount';
@@ -45,7 +58,7 @@ class ApplyVoucherCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: PaddingSizes.sectionTitlePadding),
       child: GestureDetector(
-        onTap: onApply,
+        onTap: onApply, // Terapkan voucher saat diketuk
         child: ClipPath(
           clipper:
               NotchedRectangleClipper(notchRadius: 16.0, cornerRadius: 12.0),
@@ -83,7 +96,7 @@ class ApplyVoucherCard extends StatelessWidget {
                                   color: Color(0xFF95BBE3),
                                 ),
                               ),
-                              const SizedBox.shrink(), // No edit button
+                              const SizedBox.shrink(), // Tidak ada tombol edit
                             ],
                           ),
                           Text(
@@ -124,7 +137,7 @@ class ApplyVoucherCard extends StatelessWidget {
                   ),
                   CustomPaint(
                     size: const Size(1, double.infinity),
-                    painter: DashedLinePainter(),
+                    painter: DashedLinePainter(), // Garis putus-putus
                   ),
                   Container(
                     width: 100.0,
@@ -165,6 +178,7 @@ class ApplyVoucherCard extends StatelessWidget {
   }
 }
 
+// Clipper untuk membuat bentuk kartu dengan takik
 class NotchedRectangleClipper extends CustomClipper<Path> {
   final double notchRadius;
   final double cornerRadius;
@@ -238,6 +252,7 @@ class NotchedRectangleClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }
 
+// Painter untuk garis putus-putus
 class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

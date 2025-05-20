@@ -1,8 +1,14 @@
+// File: order_model.dart
+// Berisi kelas OrderModel untuk merepresentasikan data pesanan dan menangani serialisasi/deserialisasi.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 import '../../domain/entities/order.dart';
 
+// Kelas OrderModel yang memperluas entitas Order.
 class OrderModel extends Order {
-  OrderModel({
+  // Konstruktor dengan parameter wajib dan opsional.
+  const OrderModel({
     required super.id,
     required super.laundryUniqueName,
     required super.customerUniqueName,
@@ -17,10 +23,12 @@ class OrderModel extends Order {
     super.completedAt,
     super.cancelledAt,
     super.updatedAt,
-    super.isHistory, // Add isHistory
+    super.isHistory, // Menambahkan isHistory untuk menandai pesanan sebagai riwayat.
   });
 
+  // Factory untuk membuat OrderModel dari JSON.
   factory OrderModel.fromJson(Map<String, dynamic> json, String id) {
+    // Fungsi bantu untuk mengonversi timestamp ke DateTime.
     DateTime getDateTime(dynamic timestamp) {
       if (timestamp is Timestamp) {
         return timestamp.toDate();
@@ -30,6 +38,7 @@ class OrderModel extends Order {
       return DateTime.now();
     }
 
+    // Tangani data clothes untuk menghitung jumlah pakaian.
     final clothesData = json['clothes'];
     final clothesCount =
         clothesData is List ? clothesData.length : (clothesData as int? ?? 0);
@@ -52,10 +61,11 @@ class OrderModel extends Order {
           json['cancelledAt'] != null ? getDateTime(json['cancelledAt']) : null,
       updatedAt:
           json['updatedAt'] != null ? getDateTime(json['updatedAt']) : null,
-      isHistory: json['isHistory'] as bool? ?? false, // Add isHistory
+      isHistory: json['isHistory'] as bool? ?? false, // Menangani isHistory.
     );
   }
 
+  // Method untuk mengonversi OrderModel ke Map untuk Firestore.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -74,10 +84,11 @@ class OrderModel extends Order {
       'cancelledAt':
           cancelledAt != null ? Timestamp.fromDate(cancelledAt!) : null,
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
-      'isHistory': isHistory, // Add isHistory
+      'isHistory': isHistory, // Menambahkan isHistory ke Map.
     };
   }
 
+  // Method untuk mengonversi OrderModel ke JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -94,10 +105,11 @@ class OrderModel extends Order {
       'completedAt': completedAt?.toIso8601String(),
       'cancelledAt': cancelledAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      'isHistory': isHistory, // Add isHistory
+      'isHistory': isHistory, // Menambahkan isHistory ke JSON.
     };
   }
 
+  // Factory untuk membuat OrderModel dari entitas Order.
   factory OrderModel.fromEntity(Order order) {
     return OrderModel(
       id: order.id,
@@ -114,10 +126,11 @@ class OrderModel extends Order {
       completedAt: order.completedAt,
       cancelledAt: order.cancelledAt,
       updatedAt: order.updatedAt,
-      isHistory: order.isHistory, // Add isHistory
+      isHistory: order.isHistory, // Menangani isHistory dari entitas.
     );
   }
 
+  // Method untuk membuat salinan OrderModel dengan nilai baru.
   OrderModel copyWith({
     String? id,
     String? laundryUniqueName,
@@ -133,7 +146,7 @@ class OrderModel extends Order {
     DateTime? completedAt,
     DateTime? cancelledAt,
     DateTime? updatedAt,
-    bool? isHistory, // Add isHistory
+    bool? isHistory, // Menambahkan parameter isHistory.
   }) {
     return OrderModel(
       id: id ?? this.id,
@@ -150,10 +163,11 @@ class OrderModel extends Order {
       completedAt: completedAt ?? this.completedAt,
       cancelledAt: cancelledAt ?? this.cancelledAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      isHistory: isHistory ?? this.isHistory, // Add isHistory
+      isHistory: isHistory ?? this.isHistory, // Menangani isHistory.
     );
   }
 
+  // Override operator == untuk membandingkan dua OrderModel.
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -173,8 +187,10 @@ class OrderModel extends Order {
           completedAt == other.completedAt &&
           cancelledAt == other.cancelledAt &&
           updatedAt == other.updatedAt &&
-          isHistory == other.isHistory; // Add isHistory
+          isHistory ==
+              other.isHistory; // Menambahkan isHistory ke perbandingan.
 
+  // Override hashCode untuk menghasilkan hash berdasarkan properti.
   @override
   int get hashCode => Object.hash(
         id,
@@ -191,6 +207,6 @@ class OrderModel extends Order {
         completedAt,
         cancelledAt,
         updatedAt,
-        isHistory, // Add isHistory
+        isHistory, // Menambahkan isHistory ke hash.
       );
 }

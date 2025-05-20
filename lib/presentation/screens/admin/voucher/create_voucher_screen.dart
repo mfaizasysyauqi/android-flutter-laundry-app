@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/create_voucher_screen.dart
+// Berisi tampilan untuk membuat voucher baru oleh admin.
+// Menyediakan formulir untuk memasukkan nama, jumlah, jenis, metode perolehan, dan masa berlaku voucher.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/providers/core_provider.dart';
@@ -10,15 +15,18 @@ import '../../../style/sizes/padding_sizes.dart';
 import '../../../style/app_typography.dart';
 import '../../../widgets/common/custom_text_form_field.dart';
 
+// Kelas untuk ukuran ikon
 class IconSizes {
   static const double navigationIcon = 24;
 }
 
+// Kelas untuk ukuran margin
 class MarginSizes {
   static const double modalTop = 16.0;
   static const double moderate = 16.0;
 }
 
+// Kelas utama untuk layar pembuatan voucher
 class CreateVoucherScreen extends ConsumerStatefulWidget {
   const CreateVoucherScreen({super.key});
 
@@ -28,21 +36,27 @@ class CreateVoucherScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
+  // Kunci untuk validasi formulir
   final _formKey = GlobalKey<FormState>();
+  // Kontroler untuk input formulir
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
   final _typeController = TextEditingController();
   final _obtainMethodController = TextEditingController();
   final _validityPeriodController = TextEditingController();
   final _searchController = TextEditingController();
-  final _searchFocusNode = FocusNode(); // Moved to state level
+  final _searchFocusNode = FocusNode();
+  // Tanggal kadaluarsa voucher
   DateTime? _validityPeriod;
+  // Status pembuatan voucher
   bool _isCreating = false;
 
+  // Daftar opsi jenis voucher
   final List<String> _voucherTypes = [
     'Free Laundry',
     'Discount',
   ];
+  // Daftar opsi metode perolehan
   final List<String> _obtainMethods = [
     'Laundry 5 Kg',
     'Laundry 10 Kg',
@@ -57,6 +71,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
   @override
   void initState() {
     super.initState();
+    // Inisialisasi nilai awal
     _validityPeriodController.text = 'No Expiry';
     _nameController.clear();
     _amountController.clear();
@@ -67,16 +82,18 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
 
   @override
   void dispose() {
+    // Membersihkan kontroler dan focus node
     _nameController.dispose();
     _amountController.dispose();
     _typeController.dispose();
     _obtainMethodController.dispose();
     _validityPeriodController.dispose();
     _searchController.dispose();
-    _searchFocusNode.dispose(); // Dispose at widget level
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
+  // Menampilkan pemilih tanggal untuk masa berlaku
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -107,6 +124,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
     }
   }
 
+  // Menghapus masa berlaku
   void _clearValidityPeriod() {
     setState(() {
       _validityPeriod = null;
@@ -114,6 +132,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
     });
   }
 
+  // Mem-parsing tipe voucher
   String _parseVoucherType(String voucherType) {
     if (voucherType.contains('Free Laundry')) {
       return 'Free Laundry';
@@ -123,11 +142,13 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
     throw Exception('Invalid voucher type');
   }
 
+  // Membuat voucher baru
   void _createVoucher() {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isCreating = true;
       });
+      // Memastikan pengguna terautentikasi
       final currentUser = ref.read(firebaseAuthProvider).currentUser;
       if (currentUser == null) {
         setState(() {
@@ -152,6 +173,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
         return;
       }
 
+      // Membuat entitas voucher
       final voucher = Voucher(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
@@ -162,10 +184,12 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
         laundryId: currentUser.uid,
         ownerVoucherIds: [],
       );
+      // Menyimpan voucher melalui provider
       ref.read(voucherProvider.notifier).createVoucher(voucher);
     }
   }
 
+  // Menampilkan modal untuk memilih opsi
   void _showOptionsModal({
     required BuildContext context,
     required List<String> options,
@@ -200,6 +224,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Header modal
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -229,6 +254,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                           ],
                         ),
                         const SizedBox(height: MarginSizes.modalTop),
+                        // Kolom pencarian
                         CustomTextFormField(
                           controller: _searchController,
                           focusNode: _searchFocusNode,
@@ -247,6 +273,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                           },
                         ),
                         const SizedBox(height: MarginSizes.moderate),
+                        // Daftar opsi
                         filteredOptions.isEmpty
                             ? const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -293,6 +320,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Mengamati status pembuatan voucher
     ref.listen<AsyncValue<Voucher?>>(voucherProvider, (previous, next) {
       ScaffoldMessenger.of(context).clearSnackBars();
       next.when(
@@ -328,11 +356,13 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
 
     return Scaffold(
       backgroundColor: BackgroundColors.lightGrey,
+      // AppBar untuk navigasi dan judul
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
+          // Kembali ke dashboard
           onPressed: () {
             if (mounted) {
               context.pushReplacement('/admin-dashboard-screen');
@@ -354,6 +384,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Judul formulir
               Text(
                 'Create Your Voucher',
                 style: AppTypography.sectionTitle.copyWith(color: Colors.black),
@@ -364,18 +395,20 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 style: AppTypography.formInstruction,
               ),
               SizedBox(height: PaddingSizes.screenEdgePadding),
+              // Input nama voucher
               CustomTextFormField(
                 hintText: 'Voucher Name',
                 labelText: 'Voucher Name',
                 controller: _nameController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter voucher name';
+                    return 'Please enter the voucher name';
                   }
                   return null;
                 },
               ),
               SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input jumlah voucher
               CustomTextFormField(
                 hintText: 'Voucher Amount',
                 labelText: 'Voucher Amount (e.g., 10 for 10% or 1 for 1 Kg)',
@@ -383,7 +416,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter voucher amount';
+                    return 'Please enter the voucher amount';
                   }
                   final amount = double.tryParse(value);
                   if (amount == null || amount <= 0) {
@@ -393,6 +426,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 },
               ),
               SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input tipe voucher
               CustomTextFormField(
                 hintText: 'Voucher Type',
                 labelText: 'Voucher Type',
@@ -406,7 +440,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select voucher type';
+                    return 'Please select a voucher type';
                   }
                   return null;
                 },
@@ -417,16 +451,17 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 ),
               ),
               SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input metode perolehan
               CustomTextFormField(
-                hintText: 'How to Obtain the Voucher',
-                labelText: 'How to Obtain the Voucher',
+                hintText: 'How to Obtain Voucher',
+                labelText: 'How to Obtain Voucher',
                 controller: _obtainMethodController,
                 readOnly: true,
                 onTap: () => _showOptionsModal(
                   context: context,
                   options: _obtainMethods,
                   controller: _obtainMethodController,
-                  title: 'How to Obtain the Voucher',
+                  title: 'How to Obtain Voucher',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -441,6 +476,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 ),
               ),
               SizedBox(height: PaddingSizes.sectionTitlePadding),
+              // Input masa berlaku
               Row(
                 children: [
                   Expanded(
@@ -471,6 +507,7 @@ class _CreateVoucherScreenState extends ConsumerState<CreateVoucherScreen> {
                 ],
               ),
               SizedBox(height: PaddingSizes.screenEdgePadding),
+              // Tombol aksi
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

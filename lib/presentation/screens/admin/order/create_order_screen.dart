@@ -1,19 +1,20 @@
+// File: lib/presentation/screens/create_order_screen.dart
+// Berisi tampilan untuk membuat pesanan baru oleh admin.
+// Menyediakan formulir untuk memasukkan detail pesanan, memilih pelanggan, kecepatan laundry, dan voucher.
+
+// Mengimpor package dan file yang diperlukan.
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_laundry_app/core/utils/voucher_obtain_method_checker.dart';
 import 'package:flutter_laundry_app/data/models/order_model.dart';
 import 'package:flutter_laundry_app/data/models/voucher_model.dart';
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/providers/core_provider.dart';
-import 'package:flutter_laundry_app/presentation/providers/order_provider.dart'
-    as order_provider;
-import 'package:flutter_laundry_app/presentation/providers/user_provider.dart'
-    as user_provider;
-import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart'
-    as voucher_provider;
+import 'package:flutter_laundry_app/presentation/providers/order_provider.dart' as order_provider;
+import 'package:flutter_laundry_app/presentation/providers/user_provider.dart' as user_provider;
+import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart' as voucher_provider;
 import 'package:flutter_laundry_app/presentation/widgets/order/customer_selection_panel.dart';
 import 'package:flutter_laundry_app/presentation/widgets/order/laundry_speed_panel.dart';
 import 'package:flutter_laundry_app/presentation/widgets/voucher/voucher_list_panel.dart';
@@ -29,6 +30,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+// Formatter untuk membatasi input nilai maksimum
 class MaxValueInputFormatter extends TextInputFormatter {
   final double maxValue;
 
@@ -54,6 +56,7 @@ class MaxValueInputFormatter extends TextInputFormatter {
   }
 }
 
+// Provider untuk mendapatkan ID pengguna berdasarkan nama unik
 final userIdByUniqueNameProvider =
     FutureProvider.family<String, String>((ref, uniqueName) async {
   final getUserByUniqueNameUseCase =
@@ -65,6 +68,7 @@ final userIdByUniqueNameProvider =
   );
 });
 
+// Provider untuk mendapatkan voucher berdasarkan ID
 final voucherByIdProvider =
     FutureProvider.family<VoucherModel, String>((ref, voucherId) async {
   final snapshot = await FirebaseFirestore.instance
@@ -77,6 +81,7 @@ final voucherByIdProvider =
   return VoucherModel.fromJson(snapshot.data()!, snapshot.id);
 });
 
+// Kelas utama untuk layar pembuatan pesanan
 class CreateOrderScreen extends ConsumerStatefulWidget {
   static const routeName = '/create-order-screen';
 
@@ -87,16 +92,21 @@ class CreateOrderScreen extends ConsumerStatefulWidget {
 }
 
 class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
+  // Kunci untuk validasi formulir
   final _formKey = GlobalKey<FormState>();
+  // Kontroler untuk input formulir
   final TextEditingController _uniqueNameController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _clothesController = TextEditingController();
   final TextEditingController _laundrySpeedController = TextEditingController();
   final TextEditingController _vouchersController = TextEditingController();
+  // Timer untuk debounce input
   Timer? _debounce;
+  // Variabel untuk menyimpan ID pengguna dan voucher yang dipilih
   String? _selectedUserId;
   String? _selectedVoucherId;
 
+  // Status kunci untuk mencegah interaksi ganda
   bool _isUniqueNameFormLocked = false;
   bool _isLaundrySpeedFormLocked = false;
   bool _isVoucherFormLocked = false;
@@ -105,6 +115,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
   @override
   void initState() {
     super.initState();
+    // Inisialisasi listener untuk input
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserData();
       _weightController.addListener(_debouncedUpdatePrediction);
@@ -113,6 +124,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     });
   }
 
+  // Memuat data pengguna saat inisialisasi
   Future<void> _loadUserData() async {
     final userState = ref.read(user_provider.userProvider);
     if (userState.user == null) {
@@ -129,12 +141,14 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     ref.read(user_provider.customersProvider);
   }
 
+  // Membuat pesanan baru
   Future<void> _createOrder() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isConfirmButtonLocked = true;
       });
 
+      // Mengambil data dari formulir
       String uniqueName = _uniqueNameController.text;
       double weight = double.parse(_weightController.text);
       int clothes = int.parse(_clothesController.text);
@@ -159,6 +173,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
           throw Exception('User data not loaded');
         }
 
+        // Membuat model pesanan
         final order = OrderModel(
           id: FirebaseFirestore.instance.collection('orders').doc().id,
           laundryUniqueName: userState.user!.uniqueName,
@@ -175,6 +190,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
           isHistory: false,
         );
 
+        // Menyimpan pesanan ke Firestore
         await ref
             .read(order_provider.orderNotifierProvider.notifier)
             .createOrder(
@@ -186,6 +202,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
               order.totalPrice,
             );
 
+        // Memperbarui kepemilikan voucher
         final updateVoucherOwnerUseCase =
             ref.read(voucher_provider.updateVoucherOwnerUseCaseProvider);
         if (vouchers.isNotEmpty) {
@@ -201,6 +218,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
           }
         }
 
+        // Menetapkan voucher baru jika memenuhi syarat
         final getVouchersByLaundryIdUseCase =
             ref.read(voucher_provider.getVouchersByLaundryIdUseCaseProvider);
         final voucherResult =
@@ -240,11 +258,13 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
           }
         }
 
+        // Memperbarui daftar voucher
         await ref
             .read(voucher_provider.voucherListProvider(userId).notifier)
             .refresh();
 
         if (mounted) {
+          // Membersihkan listener dan input
           _weightController.removeListener(_debouncedUpdatePrediction);
           _clothesController.removeListener(_debouncedUpdatePrediction);
           _laundrySpeedController.removeListener(_debouncedUpdatePrediction);
@@ -260,6 +280,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
               .resetPrediction();
           ref.read(order_provider.orderNotifierProvider);
 
+          // Menampilkan pesan sukses
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -292,6 +313,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     }
   }
 
+  // Memperbarui prediksi waktu penyelesaian dengan debounce
   void _debouncedUpdatePrediction() {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -299,6 +321,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     });
   }
 
+  // Memperbarui prediksi waktu penyelesaian
   void _updatePrediction() {
     final weightText = _weightController.text;
     final clothesText = _clothesController.text;
@@ -321,6 +344,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     }
   }
 
+  // Menghitung total harga pesanan
   double _calculateTotalPrice(
       dynamic user, double weight, String laundrySpeed, List<String> vouchers) {
     final regulerPrice = user.regulerPrice.toDouble();
@@ -382,6 +406,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     super.dispose();
   }
 
+  // Menampilkan modal pemilihan pelanggan
   void _showCustomerSelectionModal() async {
     if (_isUniqueNameFormLocked) return;
 
@@ -416,11 +441,11 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     }
   }
 
+  // Menampilkan modal pemilihan kecepatan laundry
   void _showLaundrySpeedModal() async {
     if (_isLaundrySpeedFormLocked) return;
 
-    final currentUser =
-        ref.read(firebaseAuthProvider).currentUser;
+    final currentUser = ref.read(firebaseAuthProvider).currentUser;
     if (currentUser == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -450,8 +475,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content:
-                  Text('Weight and quantity of clothes must be more than 0')),
+              content: Text('Weight and quantity of clothes must be more than 0')),
         );
       }
       return;
@@ -488,6 +512,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     }
   }
 
+  // Menampilkan modal pemilihan voucher
   void _showVoucherSelectionModal(String userId, double? weight) async {
     if (_isVoucherFormLocked) return;
 
@@ -507,15 +532,13 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  'Please fill in weight, clothes, and laundry speed first')),
+              content: Text('Please fill in weight, clothes, and laundry speed first')),
         );
       }
       return;
     }
 
-    final currentUser =
-        ref.read(firebaseAuthProvider).currentUser;
+    final currentUser = ref.read(firebaseAuthProvider).currentUser;
     if (currentUser == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -561,6 +584,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     }
   }
 
+  // Memformat durasi untuk tampilan
   String _formatDuration(Duration duration) {
     final days = duration.inDays;
     final hours = duration.inHours % 24;
@@ -572,9 +596,11 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Mengamati status pesanan dan pengguna
     final orderState = ref.watch(order_provider.orderNotifierProvider);
     final userState = ref.watch(user_provider.userProvider);
 
+    // Menghitung total harga
     double totalPrice = 0.0;
     if (userState.user != null) {
       final weightText = _weightController.text;
@@ -593,6 +619,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
     final numberFormat = NumberFormat("#,##0.00", "id_ID");
     final formattedTotalPrice = numberFormat.format(totalPrice);
 
+    // Membangun tampilan utama
     return Scaffold(
       appBar: AppBar(
         backgroundColor: BackgroundColors.transparent,
@@ -602,6 +629,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, size: IconSizes.navigationIcon),
+          // Membersihkan input dan kembali ke dashboard
           onPressed: () {
             _weightController.removeListener(_debouncedUpdatePrediction);
             _clothesController.removeListener(_debouncedUpdatePrediction);
@@ -636,6 +664,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                 Text('Enter customer details to place customer order',
                     style: AppTypography.formInstruction),
                 const SizedBox(height: PaddingSizes.formSpacing),
+                // Menampilkan formulir jika data pengguna tersedia
                 if (userState.isLoading || userState.user == null)
                   const Center(child: LoadingIndicator())
                 else
@@ -643,6 +672,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
+                        // Input nama unik pelanggan
                         CustomTextFormField(
                           hintText: 'Select Unique Name',
                           labelText: 'Unique Name',
@@ -659,6 +689,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                               : null,
                         ),
                         const SizedBox(height: MarginSizes.formFieldSpacing),
+                        // Input berat pakaian
                         CustomTextFormField(
                           hintText: 'Input Clothes Weight (kg)',
                           labelText: 'Clothes Weight (kg)',
@@ -684,6 +715,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                           },
                         ),
                         const SizedBox(height: MarginSizes.formFieldSpacing),
+                        // Input jumlah pakaian
                         CustomTextFormField(
                           hintText: 'Input Clothes Quantity',
                           labelText: 'Clothes Quantity',
@@ -704,6 +736,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                           },
                         ),
                         const SizedBox(height: MarginSizes.formFieldSpacing),
+                        // Input kecepatan laundry
                         CustomTextFormField(
                           hintText: 'Select Laundry Speed',
                           labelText: 'Laundry Speed',
@@ -716,6 +749,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                               : null,
                         ),
                         const SizedBox(height: MarginSizes.formFieldSpacing),
+                        // Input pemilihan voucher
                         CustomTextFormField(
                           hintText: 'Select Voucher',
                           labelText: 'Voucher',
@@ -743,6 +777,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                           validator: (value) => null,
                         ),
                         const SizedBox(height: PaddingSizes.formSpacing),
+                        // Menampilkan total harga
                         Padding(
                           padding: const EdgeInsets.only(
                               bottom: PaddingSizes.formSpacing),
@@ -755,6 +790,7 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                             ),
                           ),
                         ),
+                        // Menampilkan estimasi penyelesaian
                         if (orderState.isLoadingPrediction)
                           const Padding(
                             padding: EdgeInsets.only(
@@ -781,10 +817,10 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                                 bottom: PaddingSizes.formSpacing),
                             child: Text(
                               'Estimated completion: Not available',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey),
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
                             ),
                           ),
+                        // Tombol untuk mengonfirmasi pesanan
                         CustomButton(
                           text: 'Confirm Order',
                           onPressed: _isConfirmButtonLocked
@@ -794,12 +830,14 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                                 },
                           isLoading: _isConfirmButtonLocked,
                         ),
+                        // Menampilkan indikator loading jika pesanan sedang diproses
                         if (orderState.isLoading && !_isConfirmButtonLocked)
                           const Padding(
                             padding: EdgeInsets.only(
                                 top: PaddingSizes.sectionTitlePadding),
                             child: LoadingIndicator(),
                           ),
+                        // Menampilkan pesan error jika ada
                         if (orderState.errorMessage != null)
                           Padding(
                             padding: const EdgeInsets.only(

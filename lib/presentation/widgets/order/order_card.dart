@@ -1,3 +1,8 @@
+// File: lib/presentation/widgets/order/order_card.dart
+// Berisi widget kartu untuk menampilkan detail pesanan.
+// Digunakan untuk menampilkan pesanan di daftar pesanan admin atau pengguna.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/domain/entities/order.dart';
 import 'package:flutter_laundry_app/presentation/providers/order_provider.dart';
@@ -17,16 +22,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
+// Widget kartu pesanan
 class OrderCard extends ConsumerWidget {
+  // Data pesanan
   final Order order;
+  // Status admin
   final bool isAdmin;
 
+  // Konstruktor dengan parameter wajib dan opsional
   const OrderCard({
     super.key,
     required this.order,
     this.isAdmin = true,
   });
 
+  // Format harga total
   String formatTotalPrice(double totalPrice) {
     if (totalPrice > 999999999) {
       double valueInBillions = totalPrice / 1000000000;
@@ -368,6 +378,7 @@ class OrderCard extends ConsumerWidget {
     );
   }
 
+  // Memperbarui status pesanan
   Future<void> _updateStatus(
       BuildContext context, OrderActions actions, String newStatus) async {
     try {
@@ -388,6 +399,7 @@ class OrderCard extends ConsumerWidget {
     }
   }
 
+  // Mengirim pesanan ke riwayat
   Future<void> _sendToHistory(
       BuildContext context, OrderActions actions) async {
     try {

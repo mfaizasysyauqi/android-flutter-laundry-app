@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/admin_order_history_screen.dart
+// Berisi tampilan riwayat pesanan untuk admin.
+// Menyediakan filter untuk menampilkan pesanan berdasarkan status (semua, selesai, dibatalkan).
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,16 +18,21 @@ import '../../../providers/order_provider.dart';
 import '../../../widgets/order/order_card.dart';
 import '../../../../domain/entities/order.dart' as domain;
 
+// Kelas utama untuk layar riwayat pesanan admin
 class AdminOrderHistoryScreen extends ConsumerWidget {
+  // Nama rute untuk navigasi
   static const routeName = '/admin-order-history-screen';
   const AdminOrderHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Mengamati status autentikasi
     final authState = ref.watch(authStateProvider);
 
+    // Menangani status autentikasi dengan AsyncValue
     return authState.when(
       data: (user) {
+        // Jika pengguna tidak terautentikasi, arahkan ke layar login
         if (user == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.go('/login-screen');
@@ -31,6 +41,7 @@ class AdminOrderHistoryScreen extends ConsumerWidget {
             body: Center(child: LoadingIndicator()),
           );
         }
+        // Membangun layar riwayat jika pengguna valid
         return _buildHistoryScreen(context, ref);
       },
       loading: () => const Scaffold(
@@ -42,7 +53,9 @@ class AdminOrderHistoryScreen extends ConsumerWidget {
     );
   }
 
+  // Membangun tampilan utama layar riwayat
   Widget _buildHistoryScreen(BuildContext context, WidgetRef ref) {
+    // Mengamati filter yang dipilih dan data pesanan
     final selectedFilter = ref.watch(orderFilterProvider);
     final ordersAsync = ref.watch(historyOrdersProvider);
 
@@ -57,6 +70,7 @@ class AdminOrderHistoryScreen extends ConsumerWidget {
             Icons.chevron_left,
             size: IconSizes.navigationIcon,
           ),
+          // Kembali ke dashboard
           onPressed: () {
             context.go('/admin-dashboard-screen');
           },
@@ -81,6 +95,7 @@ class AdminOrderHistoryScreen extends ConsumerWidget {
               style: AppTypography.sectionTitle,
             ),
           ),
+          // Filter untuk memilih status pesanan
           Container(
             padding: const EdgeInsets.all(PaddingSizes.cardPadding),
             child: SingleChildScrollView(
@@ -114,6 +129,7 @@ class AdminOrderHistoryScreen extends ConsumerWidget {
               ),
             ),
           ),
+          // Menampilkan daftar pesanan atau status lainnya
           Expanded(
             child: ordersAsync.when(
               data: (orders) {
@@ -136,19 +152,22 @@ class AdminOrderHistoryScreen extends ConsumerWidget {
     );
   }
 
+  // Membangun daftar pesanan
   Widget _buildOrdersList(List<domain.Order> orders, WidgetRef ref) {
     return ListView.builder(
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
+        // Menampilkan kartu pesanan dengan mode admin
         return OrderCard(
           order: order,
-          isAdmin: true, // Always true for Admin screen
+          isAdmin: true,
         );
       },
     );
   }
 
+  // Menampilkan tampilan saat tidak ada pesanan
   Widget _buildEmptyState(BuildContext context, OrderFilter filter) {
     return Center(
       child: Column(

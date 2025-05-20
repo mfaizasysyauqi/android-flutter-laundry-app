@@ -1,3 +1,8 @@
+// File: lib/presentation/screens/user_voucher_details_screen.dart
+// Berisi layar untuk menampilkan detail voucher pengguna.
+// Digunakan untuk menampilkan informasi lengkap tentang voucher tertentu.
+
+// Mengimpor package dan file yang diperlukan.
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/core/error/failures.dart';
@@ -13,13 +18,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+// Widget layar untuk detail voucher pengguna
 class UserVoucherDetailsScreen extends ConsumerWidget {
+  // Nama rute untuk navigasi
   static const routeName = '/user-voucher-details-screen';
+  // Data voucher yang ditampilkan
   final Voucher voucher;
 
+  // Konstruktor dengan parameter wajib
   const UserVoucherDetailsScreen({super.key, required this.voucher});
 
+  // Mendapatkan deskripsi metode perolehan voucher
   String _getDisplayObtainMethod(String obtainMethod) {
+    // Peta deskripsi metode perolehan
     const methodDescriptions = {
       'Laundry 5 Kg': 'Available for 5 Kg laundry',
       'Laundry 10 Kg': 'Available for 10 Kg laundry',
@@ -33,6 +44,7 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
     return methodDescriptions[obtainMethod] ?? obtainMethod;
   }
 
+  // Mendapatkan deskripsi manfaat voucher
   String _getDescription(Voucher voucher) {
     if (voucher.type == 'Discount') {
       return 'Enjoy ${voucher.amount}% discount for new customer';
@@ -44,49 +56,58 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Ambil use case untuk mendapatkan data pengguna
     final getUserByIdUseCase = ref.watch(getUserByIdUseCaseProvider);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: BackgroundColors.transparent,
-        shadowColor: BackgroundColors.transparent,
-        surfaceTintColor: BackgroundColors.transparent,
-        elevation: 0,
+        backgroundColor:
+            BackgroundColors.transparent, // Latar belakang transparan
+        shadowColor: BackgroundColors.transparent, // Tanpa bayangan
+        surfaceTintColor: BackgroundColors.transparent, // Tanpa tint
+        elevation: 0, // Tanpa elevasi
         leading: IconButton(
           icon: const Icon(
             Icons.chevron_left,
-            size: IconSizes.navigationIcon,
+            size: IconSizes.navigationIcon, // Ukuran ikon navigasi
           ),
           onPressed: () {
-            context.go('/user-voucher-list-screen');
+            context
+                .go('/user-voucher-list-screen'); // Kembali ke daftar voucher
           },
         ),
         title: Text(
           'Voucher Details',
-          style: AppTypography.darkAppBarTitle,
+          style: AppTypography.darkAppBarTitle, // Gaya judul app bar
         ),
-        centerTitle: true,
+        centerTitle: true, // Judul di tengah
       ),
       body: FutureBuilder<dartz.Either<Failure, User>>(
-        future: getUserByIdUseCase(voucher.laundryId),
+        future: getUserByIdUseCase(voucher.laundryId), // Ambil data pengguna
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: LoadingIndicator());
+            return const Center(
+                child: LoadingIndicator()); // Tampilkan indikator loading
           }
           if (!snapshot.hasData) {
-            return const Center(child: Text('Error fetching laundry name'));
+            return const Center(
+                child: Text(
+                    'Error fetching laundry name')); // Pesan error jika tidak ada data
           }
 
           return snapshot.data!.fold(
             (failure) => const Center(
-                child: Text('Error fetching laundry name: Server Failure')),
+                child: Text(
+                    'Error fetching laundry name: Server Failure')), // Pesan error jika gagal
             (user) {
+              // Nama laundry dari data pengguna
               final laundryName = user.uniqueName;
 
               return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: PaddingSizes.sectionTitlePadding),
+                      horizontal: PaddingSizes
+                          .sectionTitlePadding), // Padding horizontal
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -101,26 +122,33 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               'Voucher Details',
-                              style: AppTypography.sectionTitle,
+                              style: AppTypography
+                                  .sectionTitle, // Gaya judul bagian
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(
-                          height: PaddingSizes.contentContainerPadding),
+                          height: PaddingSizes
+                              .contentContainerPadding), // Jarak antar elemen
                       Stack(
-                        clipBehavior: Clip.none,
+                        clipBehavior:
+                            Clip.none, // Izinkan elemen melampaui batas
                         children: [
                           ClipPath(
                             clipper: NotchedRectangleClipper(
-                                notchRadius: 16.0, cornerRadius: 12.0),
+                                notchRadius: 16.0,
+                                cornerRadius:
+                                    12.0), // Bentuk kartu dengan takik
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Color(0x0ff5f5f5),
-                                borderRadius: BorderRadius.circular(12.0),
+                                color: Color(0x0ff5f5f5), // Warna latar kartu
+                                borderRadius: BorderRadius.circular(
+                                    12.0), // Sudut membulat
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withAlpha(25),
+                                    color: Colors.grey
+                                        .withAlpha(25), // Bayangan halus
                                     blurRadius: 8.0,
                                     offset: const Offset(0, 2),
                                   ),
@@ -134,7 +162,9 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                                     Expanded(
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            vertical: 16.0, horizontal: 20.0),
+                                            vertical: 16.0,
+                                            horizontal:
+                                                20.0), // Padding dalam kartu
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -144,7 +174,8 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18.0,
-                                                color: Color(0xFF95BBE3),
+                                                color: Color(
+                                                    0xFF95BBE3), // Warna teks nama voucher
                                               ),
                                             ),
                                             Text(
@@ -155,7 +186,9 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            const SizedBox(height: 12.0),
+                                            const SizedBox(
+                                                height:
+                                                    12.0), // Jarak antar elemen
                                             Text(
                                               _getDisplayObtainMethod(
                                                   voucher.obtainMethod),
@@ -186,7 +219,8 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                                     ),
                                     CustomPaint(
                                       size: const Size(1, double.infinity),
-                                      painter: DashedLinePainter(),
+                                      painter:
+                                          DashedLinePainter(), // Garis putus-putus
                                     ),
                                     Container(
                                       width: 100.0,
@@ -224,7 +258,7 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                             ),
                           ),
                           Positioned(
-                            top: 500.0,
+                            top: 500.0, // Posisi kartu kedua
                             left: 0,
                             right: 0,
                             child: ClipPath(
@@ -333,7 +367,7 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                             ),
                           ),
                           Positioned(
-                            top: 100.0,
+                            top: 100.0, // Posisi kartu detail
                             left: 0,
                             right: 0,
                             child: SizedBox(
@@ -381,17 +415,20 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
                                           ),
                                         ],
                                       ),
-                                      const Divider(color: Colors.grey),
+                                      const Divider(
+                                          color: Colors.grey), // Garis pemisah
                                       Text(
                                         laundryName,
                                         style: AppTypography.sectionTitle
-                                            .copyWith(fontSize: 24),
+                                            .copyWith(
+                                                fontSize:
+                                                    24), // Nama laundry besar
                                       ),
                                       const SizedBox(height: 16.0),
-                                      _buildDetailRow(
-                                          'VOUCHER NAME', voucher.name),
+                                      _buildDetailRow('VOUCHER NAME',
+                                          voucher.name), // Baris detail
                                       const SizedBox(height: 8.0),
-                                      _buildDetailRow('VOUCHER AMOUNT',
+                                      _buildDetailRow('AMOUNT',
                                           '${voucher.amount}% discount'),
                                       const SizedBox(height: 8.0),
                                       _buildDetailRow(
@@ -431,6 +468,7 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
     );
   }
 
+  // Widget untuk membuat baris detail
   Widget _buildDetailRow(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,10 +495,14 @@ class UserVoucherDetailsScreen extends ConsumerWidget {
   }
 }
 
+// Clipper untuk membuat bentuk kartu dengan takik
 class NotchedRectangleClipper extends CustomClipper<Path> {
+  // Radius takik
   final double notchRadius;
+  // Radius sudut
   final double cornerRadius;
 
+  // Konstruktor dengan parameter wajib
   NotchedRectangleClipper(
       {required this.notchRadius, required this.cornerRadius});
 
@@ -528,6 +570,7 @@ class NotchedRectangleClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }
 
+// Painter untuk garis putus-putus
 class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
