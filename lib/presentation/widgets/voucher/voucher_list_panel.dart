@@ -110,7 +110,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
   void initState() {
     super.initState();
     if (widget.userId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.microtask(() {
         if (widget.laundryId != null) {
           ref
               .read(voucher_provider
@@ -295,7 +295,7 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
                                 'Unknown Laundry';
                         final isLaundryOwner = userRoleAsync.hasValue &&
                             userRoleAsync.value == 'Worker';
-                    
+
                         return Padding(
                           padding: const EdgeInsets.only(
                               bottom: MarginSizes.cardMargin),
@@ -304,7 +304,8 @@ class VoucherListPanelState extends ConsumerState<VoucherListPanel> {
                             uniqueName: uniqueName,
                             isLaundryOwner: isLaundryOwner,
                             onApply: () {
-                              widget.onVoucherSelected(voucher.name, voucher.id);
+                              widget.onVoucherSelected(
+                                  voucher.name, voucher.id);
                               debugPrint(
                                   'Applying voucher: name=${voucher.name}, id=${voucher.id}');
                               Navigator.pop(context); // Tutup panel
