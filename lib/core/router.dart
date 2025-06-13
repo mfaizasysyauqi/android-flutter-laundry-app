@@ -3,6 +3,7 @@
 
 // Mengimpor package dan file yang diperlukan untuk routing dan widget.
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
+import 'package:flutter_laundry_app/presentation/screens/admin/order/predict_laundry_screen.dart';
 import 'package:flutter_laundry_app/presentation/screens/admin/order/admin_order_history_screen.dart';
 import 'package:flutter_laundry_app/presentation/screens/admin/order/manage_orders_screen.dart';
 import 'package:flutter_laundry_app/presentation/screens/admin/price/price_management_screen.dart';
@@ -132,6 +133,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final voucher = state.extra as Voucher;
           return UserVoucherDetailsScreen(voucher: voucher);
         },
+      ),
+      GoRoute(
+        path: '/predict-laundry-screen',
+        builder: (context, state) => const PredictLaundryScreen(),
       ),
     ],
   );

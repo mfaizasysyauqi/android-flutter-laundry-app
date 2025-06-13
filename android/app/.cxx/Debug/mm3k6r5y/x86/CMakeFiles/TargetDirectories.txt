@@ -1,0 +1,2 @@
+C:/Users/wi2nu/OneDrive - Telkom University/TEL-U (SMT 6)/ABP/laundry app/android-flutter-laundry-app/android/app/.cxx/Debug/mm3k6r5y/x86/CMakeFiles/edit_cache.dir
+C:/Users/wi2nu/OneDrive - Telkom University/TEL-U (SMT 6)/ABP/laundry app/android-flutter-laundry-app/android/app/.cxx/Debug/mm3k6r5y/x86/CMakeFiles/rebuild_cache.dir

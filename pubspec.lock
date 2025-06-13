@@ -552,7 +552,7 @@ packages:
   tflite_flutter:
     dependency: "direct main"
     description:
-      path: "D:\\Kuliah\\Semester 6\\aplikasi berbasis platform\\tubes1\\tflite_flutter-0.11.0"
+      path: "C:\\Users\\wi2nu\\OneDrive - Telkom University\\TEL-U (SMT 6)\\ABP\\tflite_flutter-0.11.0"
       relative: false
     source: path
     version: "0.11.0"

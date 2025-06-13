@@ -12,9 +12,12 @@ import 'package:flutter_laundry_app/data/models/order_model.dart';
 import 'package:flutter_laundry_app/data/models/voucher_model.dart';
 import 'package:flutter_laundry_app/domain/entities/voucher.dart';
 import 'package:flutter_laundry_app/presentation/providers/core_provider.dart';
-import 'package:flutter_laundry_app/presentation/providers/order_provider.dart' as order_provider;
-import 'package:flutter_laundry_app/presentation/providers/user_provider.dart' as user_provider;
-import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart' as voucher_provider;
+import 'package:flutter_laundry_app/presentation/providers/order_provider.dart'
+    as order_provider;
+import 'package:flutter_laundry_app/presentation/providers/user_provider.dart'
+    as user_provider;
+import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart'
+    as voucher_provider;
 import 'package:flutter_laundry_app/presentation/widgets/order/customer_selection_panel.dart';
 import 'package:flutter_laundry_app/presentation/widgets/order/laundry_speed_panel.dart';
 import 'package:flutter_laundry_app/presentation/widgets/voucher/voucher_list_panel.dart';
@@ -475,7 +478,8 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Weight and quantity of clothes must be more than 0')),
+              content:
+                  Text('Weight and quantity of clothes must be more than 0')),
         );
       }
       return;
@@ -532,7 +536,8 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Please fill in weight, clothes, and laundry speed first')),
+              content: Text(
+                  'Please fill in weight, clothes, and laundry speed first')),
         );
       }
       return;
@@ -817,7 +822,8 @@ class CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                                 bottom: PaddingSizes.formSpacing),
                             child: Text(
                               'Estimated completion: Not available',
-                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
                             ),
                           ),
                         // Tombol untuk mengonfirmasi pesanan

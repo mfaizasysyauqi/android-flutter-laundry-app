@@ -29,7 +29,7 @@ dependencies:
   internet_connection_checker: ^3.0.1 # Pemeriksa koneksi internet
   dartz: ^0.10.1 # Utilitas untuk pemrograman fungsional
   tflite_flutter:
-    path: D:/Kuliah/Semester 6/aplikasi berbasis platform/tubes1/tflite_flutter-0.11.0 # TensorFlow Lite untuk model ML
+    path: C:\Users\wi2nu\OneDrive - Telkom University\TEL-U (SMT 6)\ABP\tflite_flutter-0.11.0 # TensorFlow Lite untuk model ML
   cupertino_icons: ^1.0.8 # Ikon gaya Cupertino
   equatable: ^2.0.7 # Membantu perbandingan objek
   intl: ^0.20.2 # Format internasional untuk tanggal dan angka
@@ -50,3 +50,4 @@ flutter:
   assets:
     - assets/svg/ # Folder untuk file SVG
     - assets/laundry_completion_model/laundry_completion_model.tflite # Model ML untuk prediksi waktu laundry
+    - assets/laundry_predict_model/order_predictor_modelfix.tflite # Model ML untuk prediksi order besok

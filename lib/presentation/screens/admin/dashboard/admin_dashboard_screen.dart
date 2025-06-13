@@ -5,9 +5,11 @@
 // Mengimpor package dan file yang diperlukan.
 import 'package:flutter/material.dart';
 import 'package:flutter_laundry_app/presentation/providers/core_provider.dart';
-import 'package:flutter_laundry_app/presentation/providers/order_provider.dart' as order_provider;
+import 'package:flutter_laundry_app/presentation/providers/order_provider.dart'
+    as order_provider;
 import 'package:flutter_laundry_app/presentation/providers/user_provider.dart';
-import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart' as voucher_provider;
+import 'package:flutter_laundry_app/presentation/providers/voucher_provider.dart'
+    as voucher_provider;
 import 'package:flutter_laundry_app/presentation/style/app_typography.dart';
 import 'package:flutter_laundry_app/presentation/style/colors/background_colors.dart';
 import 'package:flutter_laundry_app/presentation/style/colors/text_colors.dart';
@@ -276,6 +278,37 @@ class AdminDashboardScreen extends ConsumerWidget {
                                                     fit: BoxFit.contain,
                                                   ),
                                                 ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  context.go(
+                                                      '/predict-laundry-screen');
+                                                },
+                                                child: SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.48,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.48,
+                                                  child: SvgPicture.asset(
+                                                    'assets/svg/predict_order.svg',
+                                                    fit: BoxFit.contain,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 0,
+                                                height: 0,
                                               ),
                                             ],
                                           ),
