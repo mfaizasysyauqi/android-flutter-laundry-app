@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "C:\\Users\\wi2nu\\flutter\\src\\packages\\flutter_tools\\gradle\\src\\main\\groovy\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\wi2nu\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+      "-C",
+      "C:\\Users\\wi2nu\\OneDrive - Telkom University\\TEL-U (SMT 6)\\ABP\\laundry app\\android-flutter-laundry-app\\android\\app\\.cxx\\Debug\\mm3k6r5y\\armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\wi2nu\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-C",
+    "C:\\Users\\wi2nu\\OneDrive - Telkom University\\TEL-U (SMT 6)\\ABP\\laundry app\\android-flutter-laundry-app\\android\\app\\.cxx\\Debug\\mm3k6r5y\\armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
